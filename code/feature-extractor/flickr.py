@@ -8,7 +8,7 @@ import torch
 import json
 import codecs
 import numpy as np
-
+from torchvision import transforms
 from os import listdir
 from os.path import isfile, join
 
@@ -40,20 +40,26 @@ class FLICKR(data.Dataset):
         index = self.index[i]
 	if self.train:
             img, caption  = self.__readimage__(self.train_data[index]), self.__readtext__(self.train_captions[index])
-	return img, caption
+	    if self.transform is not None:
+		img = img.resize((500,500), Image.BILINEAR)
+		img = self.transform(img)
+	return img, 1
 
     def __readimage__(self, filename):
-	img = Image.open(filename).convert('RGB')
+	img = Image.open(filename).convert('RGB')	
 	return img
+
     def __readtext__(self, filename):
 	with open (filename, "r") as myfile:
             data=myfile.readlines()
         return data
+
     def __len__(self):
 	if self.train:
             return 25000
         else:
-            return 10000	
+            return 10000
+	
     def __getfiles__(self, root, extn):
         l = len(extn)
         files = {}
@@ -68,8 +74,12 @@ class FLICKR(data.Dataset):
 	return os.path.exists(self.root)
 
 def main():
-    flickr_dataset = FLICKR(os.environ['dataset'])
-    img, caption = flickr_dataset.__getitem__(100)
-    print(img)
+    flickr_dataset = FLICKR(os.environ['dataset'], transform=transforms.Compose([
+                       transforms.ToTensor()
+                   ]))
+    '''
+    for i, index in enumerate(flickr_dataset.index):
+        img, caption = flickr_dataset.__getitem__(i)
+        print(img.size)
 main()
-
+`'''
