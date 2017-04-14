@@ -69,7 +69,7 @@ Finally, to check the image conversion worked correctly, see check_im_to_matrix_
 See data/test for a toy dataset of ~600 examples. Dataset consists of 
 * Images
 * Metadata
-* Images as a numpy matrix **pending**
+* Images as a numpy matrix
 * Image features as a numpy matrix **pending**
     - Option to store and compare multiple the results of multiple feature extractors
 
