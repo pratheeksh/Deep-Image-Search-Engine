@@ -47,10 +47,10 @@ A selection of examples from each pickle file are printed to the screen to allow
 ### Test data
 
 See data/test for a toy dataset of ~600 examples. Dataset consists of 
-1. Images
-2. Metadata
-3. Images as a numpy matrix **pending**
-4. Image features as a numpy matrix**pending**
-        - Option to store and compare multiple the results of multiple feature extractors
+* Images
+* Metadata
+* Images as a numpy matrix **pending**
+* Image features as a numpy matrix **pending**
+    - Option to store and compare multiple the results of multiple feature extractors
 
 Note: The index of the matrix = images number - 1
