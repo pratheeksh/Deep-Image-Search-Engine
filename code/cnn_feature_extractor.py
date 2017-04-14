@@ -4,24 +4,9 @@ import os
 import torch
 import torch.nn as nn
 from util.utils import *
-from torchvision import transforms
-from torch.autograd import Variable
 
 def convert_to_im_num(idx, array_num, max_per_array):
     return array_num * max_per_array + idx + 1
-
-def normalize(data):
-    transform = transforms.Normalize(
-                    mean = [ 0.485, 0.456, 0.406 ],
-                    std = [ 0.229, 0.224, 0.225 ])
-    return transform(data).float()
-
-def convert_array_to_Variable(array):
-    array = array.astype('d')
-    array = array / 255
-    array = torch.from_numpy(array)
-    array = normalize(array)
-    return Variable(array)
 
 def create_feature_matrix(data):
     data = np.transpose(data, (0, 3, 1, 2))

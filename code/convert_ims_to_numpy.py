@@ -9,19 +9,6 @@ IM_RESIZE_DIMS = (128, 128)
 START_IM_NUM = 1
 END_IM_NUM = 570
 
-def check_and_pad(im):
-    if im.ndim < 3 or not im.shape[2] == 3:
-        if im.ndim < 3:
-            im = np.expand_dims(im, axis=2)
-        if im.shape[2] >= 3:
-            print("Error")
-            return -1
-        else:
-            pad = np.zeros((IM_RESIZE_DIMS[0], IM_RESIZE_DIMS[1], 3 - im.shape[2]))
-            im = np.concatenate((im, pad), axis=2)
-            return im
-    return im
-
 def convertImsToArray(path, start, end):
     print("Processing images from {} to {}".format(start, end))
     ims_as_arrays = []
@@ -30,7 +17,7 @@ def convertImsToArray(path, start, end):
         im = getImage(filename, path)
         imr = resizeImageAlt(im, IM_RESIZE_DIMS)
         ima = convertImageToArray(imr)
-        ima = check_and_pad(ima)
+        ima = check_and_pad(ima, IM_RESIZE_DIMS)
         assert ima.shape == (IM_RESIZE_DIMS[0], IM_RESIZE_DIMS[1], 3)
         ims_as_arrays.append(ima)
         if (i % 100 == 0):
