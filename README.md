@@ -44,7 +44,27 @@ python flickr_scraper.py
 
 A selection of examples from each pickle file are printed to the screen to allow for manual checking that keys correspond to the correct image files.
 
-### Test data
+### Converting images to numpy
+
+Converts folder of images to numpy arrays of a fixed size. Each image is resized. Images are assumed to be in colour. The occasional image is grayscale, in which case the image is padded with zeros to make the dimensions compatible. 
+
+Set the following variables in convert_ims_to_numpy
+
+```python
+MAX_IMS_PER_ARRAY = 100
+IM_PATH = 'sea-project/data/test/images/'
+NUMPY_PATH = 'sea-project/data/test/images_numpy/'
+IM_RESIZE_DIMS = (128, 128)
+START_IM_NUM = 1 # corresponds to test data
+END_IM_NUM = 570 # corresponds to test data
+```
+
+The run from the root folder
+python -m code.convert_ims_to_numpy 
+
+Finally, to check the image conversion worked correctly, see check_im_to_matrix_conversion.ipynb
+
+## Test data
 
 See data/test for a toy dataset of ~600 examples. Dataset consists of 
 * Images
@@ -53,4 +73,6 @@ See data/test for a toy dataset of ~600 examples. Dataset consists of
 * Image features as a numpy matrix **pending**
     - Option to store and compare multiple the results of multiple feature extractors
 
-Note: The index of the matrix = images number - 1
+Note: To convert from matrix number and row index to image number:
+
+image number = matrix_number * MAX_IMS_PER_MATRIX + row index + 1
