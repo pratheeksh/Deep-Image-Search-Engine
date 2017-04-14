@@ -54,7 +54,7 @@ Set the following variables in convert_ims_to_numpy
 MAX_IMS_PER_ARRAY = 100
 IM_PATH = 'sea-project/data/test/images/'
 NUMPY_PATH = 'sea-project/data/test/images_numpy/'
-IM_RESIZE_DIMS = (128, 128)
+IM_RESIZE_DIMS = (224, 224)
 START_IM_NUM = 1 # corresponds to test data
 END_IM_NUM = 570 # corresponds to test data
 ```
@@ -64,13 +64,18 @@ python -m code.convert_ims_to_numpy
 
 Finally, to check the image conversion worked correctly, see check_im_to_matrix_conversion.ipynb
 
+## Feature extraction
+
+Experiments:
+- AlexNet is used as a feature extractor to extract a feature vectore of dimension 4096 from each of the images. The results are stored in a feature dictionary `feat_dict.p` whose keys are the image numbers (can also be thought of as doc ids)
+
 ## Test data
 
 See data/test for a toy dataset of ~600 examples. Dataset consists of 
 * Images
 * Metadata
 * Images as a numpy matrix
-* Image features as a numpy matrix **pending**
+* Image features as a numpy matrix
     - Option to store and compare multiple the results of multiple feature extractors
 
 Note: To convert from matrix number and row index to image number:
