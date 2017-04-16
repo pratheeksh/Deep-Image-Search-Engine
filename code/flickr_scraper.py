@@ -45,10 +45,10 @@ def get_image(url, name, path_to_save):
 
 MIN_IN_TITLE = 1
 MIN_IN_TITLE_AND_DESCR = 10
-NUM_EXAMPLES_IN_PICKLE = 10000
-path_data = '/Users/pratheeksha/School/SEA-Project/data/train/'  #folder that contains folders with xml files - create a folder with this anme for the scropt to work
-path_pickle = '/Users/pratheeksha/School/SEA-Project/data/train/metadata'   #folder where you want to save pickle files - create a folder with this anme for the scropt to work
-path_images = '/Users/pratheeksha/School/SEA-Project/data/train/images/'  #folder where you want to save images
+NUM_EXAMPLES_IN_PICKLE = 2500
+path_data = '/Volumes/My Passport Ultra/StatNLP_project/OriginalData/MVSO_ImageTagData/'  #folder that contains folders with xml files - create a folder with this anme for the scropt to work
+path_pickle = '/Volumes/My Passport Ultra/FlickrData/metadata/'   #folder where you want to save pickle files - create a folder with this anme for the scropt to work
+path_images = '/Volumes/My Passport Ultra/FlickrData/images/'  #folder where you want to save images
 
 
 data = {}
