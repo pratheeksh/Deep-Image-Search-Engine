@@ -1,11 +1,12 @@
 import os
 import numpy as np
 from util.image_processing_fns import *
+from util.utils import *
 
 MAX_IMS_PER_ARRAY = 100
-IM_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/sea-project/data/test/images/'
-NUMPY_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/sea-project/data/test/images_numpy/'
-IM_RESIZE_DIMS = (128, 128)
+IM_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images'
+NUMPY_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images_numpy/'
+IM_RESIZE_DIMS = (227, 227)
 START_IM_NUM = 1
 END_IM_NUM = 570
 
@@ -18,7 +19,8 @@ def convertImsToArray(path, start, end):
         imr = resizeImageAlt(im, IM_RESIZE_DIMS)
         ima = convertImageToArray(imr)
         ima = check_and_pad(ima, IM_RESIZE_DIMS)
-        assert ima.shape == (IM_RESIZE_DIMS[0], IM_RESIZE_DIMS[1], 3)
+        if ima.shape != (IM_RESIZE_DIMS[0], IM_RESIZE_DIMS[1], 3):
+            continue
         ims_as_arrays.append(ima)
         if (i % 100 == 0):
             print('%d images processed' % i)
