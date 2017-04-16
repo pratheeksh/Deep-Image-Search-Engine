@@ -8,7 +8,7 @@ IM_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images'
 NUMPY_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images_numpy/'
 IM_RESIZE_DIMS = (227, 227)
 START_IM_NUM = 1
-END_IM_NUM = 570
+END_IM_NUM = 10000
 
 def convertImsToArray(path, start, end):
     print("Processing images from {} to {}".format(start, end))
