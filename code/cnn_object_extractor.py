@@ -51,7 +51,7 @@ if __name__=="__main__":
     npy_path = opt.npy_path
     feat_path = opt.feat_path
     b_size = opt.batch_size
-    model = load_model()
+    model = load_object_model()
     all_feats = []
     for m in os.listdir(npy_path):
         if ".DS" in m:
@@ -59,24 +59,16 @@ if __name__=="__main__":
         else:
             print("Processing image array {}".format(m))
             m_num = str(m[:-4])
-            name = "feat_vec_" + m_num
+            name = "objects_" + m_num
             data = np.load(os.path.join(npy_path, m))
             feature_matrix = create_feature_matrix(data, b_size)
             np.save(os.path.join(feat_path, name), feature_matrix)
-            print("Saved feature matrix {}".format(m_num))
+            print("Saved object feature matrix {}".format(name))
             all_feats.append(feature_matrix)
     all_feats = np.concatenate(tuple(all_feats), axis=0)
     print(all_feats.shape)
-    np.save(os.path.join(feat_path, "all_feat_vecs"), all_feats)
-    print("Saved all features in one matrix")
+    np.save(os.path.join(feat_path, "all_object_feats"), all_feats)
+    print("Saved all object features in one matrix")
     feats_dict = convert_to_dict(all_feats)
-    pickle.dump(feats_dict, open(os.path.join(feat_path, "feat_vec_dict.p"), 'wb'))
-    print("Saved feature dictionary")
-
-
-
-
-
-
-
-
+    pickle.dump(feats_dict, open(os.path.join(feat_path, "object_feat_dict.p"), 'wb'))
+    print("Saved object features dictionary")

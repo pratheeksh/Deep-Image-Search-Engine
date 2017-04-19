@@ -15,6 +15,14 @@ def load_model():
     print(model)
     return model
 
+def load_object_model():
+    # Placeholder for more powerful model
+    # Testing logic works
+    model = models.alexnet(pretrained=True)
+    model = model.float()
+    print(model)
+    return model
+
 def check_and_pad(im, im_resize_dims):
     if im.ndim < 3 or not im.shape[2] == 3:
         if im.ndim < 3:

@@ -2,13 +2,27 @@ import os
 import numpy as np
 from util.image_processing_fns import *
 from util.utils import *
+import argparse
+import pprint
 
-MAX_IMS_PER_ARRAY = 100
-IM_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images'
-NUMPY_PATH = '/Users/pratheeksha/School/SEA-Project/data/test/images_numpy/'
-IM_RESIZE_DIMS = (227, 227)
-START_IM_NUM = 1
-END_IM_NUM = 570
+parser = argparse.ArgumentParser()
+parser.add_argument('--im_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/images', type=str)
+parser.add_argument('--npy_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/images_numpy', type=str)
+parser.add_argument('--im_per_array', default=100, type=int)
+parser.add_argument('--start_im', default=1, type=int)
+parser.add_argument('--end_im', default=570, type=int)
+parser.add_argument('--im_resize', default=227, type=int)
+opt = parser.parse_args()
+print("-------------------Settings-----------------------")
+pprint.pprint(opt)
+print("-----------------------------------------------------")
+
+MAX_IMS_PER_ARRAY = opt.im_per_array
+IM_PATH = opt.im_path
+NUMPY_PATH = opt.npy_path
+IM_RESIZE_DIMS = (opt.im_resize, opt.im_resize)
+START_IM_NUM = opt.start_im
+END_IM_NUM = opt.end_im
 
 def convertImsToArray(path, start, end):
     print("Processing images from {} to {}".format(start, end))
@@ -20,6 +34,7 @@ def convertImsToArray(path, start, end):
         ima = convertImageToArray(imr)
         ima = check_and_pad(ima, IM_RESIZE_DIMS)
         if ima.shape != (IM_RESIZE_DIMS[0], IM_RESIZE_DIMS[1], 3):
+            print("WARNING: Missing image, indexes wont match")
             continue
         ims_as_arrays.append(ima)
         if (i % 100 == 0):
