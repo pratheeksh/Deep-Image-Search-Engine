@@ -13,6 +13,7 @@ INDEX_VEC_SERVER_PORTS = []
 INDEX_OBJ_SERVER_PORTS = []
 INDEX_TXT_SERVER_PORTS = []
 DOC_SERVER_PORTS = []
+TITLE_BONUS = 10.0
 
 def init_ports():
     for i in range(NUM_VEC_INDEX_SERVERS):
@@ -39,6 +40,7 @@ def main():
     print("Index text servers: {}".format(INDEX_TXT_SERVER_PORTS))
     print("Doc servers: {}".format(DOC_SERVER_PORTS))
     print("Max num results: {}".format(MAX_NUM_RESULTS))
+    print("Title boost: {}".format(TITLE_BONUS))
 
 if __name__=="__main__":
     main()

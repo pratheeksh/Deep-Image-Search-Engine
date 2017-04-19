@@ -4,6 +4,36 @@ from torchvision import models
 from torchvision import transforms
 from torch.autograd import Variable
 import numpy as np
+import re
+import pprint
+
+# Adapted from Matt Doherty, SEA, assignment 2 solutions
+UGLY_TEXT_MAP = dict([(ord(char), None) for char in '[]{}'] + [(ord(char), ' ') for char in '|=*\\#'])
+def clean_text(text):
+    # MD - This is unnecessary
+    text = re.sub(r'\{\{.*?\}\}', '', text, flags=re.S)
+    text = re.sub(r'<ref>.*?</ref>', '', text, flags=re.S)
+    text = re.sub(r'\[\[File:.*?\|.*?\|.*?\|(.*?)\]\]', r'\1', text, flags=re.S)
+    text = text.translate(UGLY_TEXT_MAP)
+    text  = text.replace("</i>", "")
+    text  = text.replace("<i>", "")
+    text  = text.replace("</b>", "")
+    text  = text.replace("<b>", "")
+    text  = text.replace("</a>", "")
+    text  = text.replace("<a>", "")
+    text  = text.replace("&quot;", "")
+    text  = text.replace("\n", "")
+    text = text.replace("'''", '"').replace("''", '"')
+    text = text.strip()
+    return text
+
+def print_selection(indices):
+    print("============= INDEX 0 ===================")
+    pprint.pprint(indices[0])
+    print("============= INDEX 2 ===================")
+    pprint.pprint(indices[2])
+    print("===================================")
+    print()
 
 # From https://discuss.pytorch.org/t/how-to-extract-features-of-an-image-from-a-trained-model/119/3
 def load_model():
