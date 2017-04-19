@@ -77,7 +77,7 @@ for subdir, dirs, files in os.walk(path_data):
                     example['image_url'] = build_url(child.attrib)
             for child in root[0]:
                 if child.tag == 'title' and child.text is not None and len(child.text.split()) > MIN_IN_TITLE and isinstance(child.text, str):
-                    example['text'] = child.text
+                    example['title'] = child.text
                 if 'text' in example and child.tag == 'description' and child.text is not None and isinstance(child.text, str):
                     example['text'] += child.text
                 if child.tag == "urls":
