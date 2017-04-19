@@ -42,3 +42,8 @@ def displayImageInline(array):
     bio = BytesIO()
     im.save(bio, format='png')
     display(Image(bio.getvalue(), format='png', embed=True))
+
+def check_and_pad(array, dims):
+    print(array.shape)
+    print(dims)
+    pass

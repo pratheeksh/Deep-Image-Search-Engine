@@ -38,8 +38,8 @@ def convert_to_dict(feature_matrix):
 
 
 if __name__=="__main__":
-    npy_path = '/Users/lauragraesser/Google Drive/NYU_Courses/sea-project/data/test/images_numpy'
-    feat_path = '/Users/lauragraesser/Google Drive/NYU_Courses/sea-project/data/test/features'
+    npy_path = '/Users/pratheeksha/School/SEA-Project/data/test/images_numpy'
+    feat_path = '/Users/pratheeksha/School/SEA-Project/data/test/features'
     model = load_model()
     all_feats = []
     for m in os.listdir(npy_path):
@@ -59,7 +59,7 @@ if __name__=="__main__":
 
 
 
-        
+
 
 
 
