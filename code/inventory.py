@@ -1,9 +1,10 @@
-import hashlib, getpass
+import getpass
+import hashlib
 
 MAX_PORT = 49123
 MIN_PORT = 10000
-BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8],16) % \
-    (MAX_PORT - MIN_PORT) + MIN_PORT
+BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
+            (MAX_PORT - MIN_PORT) + MIN_PORT
 NUM_VEC_INDEX_SERVERS = 10
 NUM_OBJ_INDEX_SERVERS = 10
 NUM_TXT_INDEX_SERVERS = 10
@@ -15,6 +16,7 @@ INDEX_TXT_SERVER_PORTS = []
 DOC_SERVER_PORTS = []
 TITLE_BONUS = 10.0
 
+WORKER_THREAD_COUNT = 2
 def init_ports():
     for i in range(NUM_VEC_INDEX_SERVERS):
         port = BASE_PORT + i + 1
@@ -24,13 +26,14 @@ def init_ports():
         INDEX_OBJ_SERVER_PORTS.append(port)
     for i in range(NUM_TXT_INDEX_SERVERS):
         port = BASE_PORT + NUM_VEC_INDEX_SERVERS + \
-                                                NUM_OBJ_INDEX_SERVERS + i + 1
+               NUM_OBJ_INDEX_SERVERS + i + 1
         INDEX_TXT_SERVER_PORTS.append(port)
     for i in range(NUM_DOC_SERVERS):
         port = BASE_PORT + NUM_VEC_INDEX_SERVERS + \
-                                                NUM_OBJ_INDEX_SERVERS + \
-                                                NUM_TXT_INDEX_SERVERS + i + 1
+               NUM_OBJ_INDEX_SERVERS + \
+               NUM_TXT_INDEX_SERVERS + i + 1
         DOC_SERVER_PORTS.append(port)
+
 
 def main():
     init_ports()
@@ -42,5 +45,6 @@ def main():
     print("Max num results: {}".format(MAX_NUM_RESULTS))
     print("Title boost: {}".format(TITLE_BONUS))
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()
