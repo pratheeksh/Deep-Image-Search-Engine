@@ -3,6 +3,7 @@ import hashlib
 
 MAX_PORT = 49123
 MIN_PORT = 10000
+HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT
 NUM_VEC_INDEX_SERVERS = 10
@@ -15,7 +16,6 @@ INDEX_OBJ_SERVER_PORTS = []
 INDEX_TXT_SERVER_PORTS = []
 DOC_SERVER_PORTS = []
 TITLE_BONUS = 10.0
-
 WORKER_THREAD_COUNT = 10
 WORKER_PORTS = []
 NUM_KD_TREES = 3 # Not sure which counter does what so defined my own
@@ -40,7 +40,7 @@ def init_ports():
         port = BASE_PORT + NUM_VEC_INDEX_SERVERS + \
                NUM_OBJ_INDEX_SERVERS + \
                NUM_TXT_INDEX_SERVERS + \
-               DOC_SERVER_PORTS +i + 1
+               NUM_DOC_SERVERS + i + 1
         WORKER_PORTS.append(port)
 
 

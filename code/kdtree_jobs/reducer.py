@@ -14,4 +14,4 @@ for k, feat_vecs in data:
     keys.append(k)
 feats = np.array(feats)
 T = KDTree(np.array(feats))
-pickle.dump(dict(" ".join(keys), T), sys.stdout.buffer)
+pickle.dump({" ".join(keys): T}, sys.stdout.buffer)
