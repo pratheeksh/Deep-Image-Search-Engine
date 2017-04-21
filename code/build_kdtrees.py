@@ -43,7 +43,7 @@ def build_filename_map(index_array, input_np_array):
     file_names = dict()
     for i in index_array:
         for im_index in range(len(input_np_array[i])):
-            file_names[count] = str(i * 100 + im_index + 1) + ".jpg"
+            file_names[count] = str(i * 100 + im_index) + ".jpg"
             count += 1
     print(count)
     return file_names
@@ -52,8 +52,10 @@ def build_filename_map(index_array, input_np_array):
 def main():
     files = [f for f in os.listdir(os.path.join(os.curdir, args.data_path)) if '.npy' in os.path.splitext(f)]
     files.pop()  # allfeats.npy
+
     input_np_arrays = thread_helper(convert_pickle_nparray, files, None)
     index_arrays = [[] for i in range(num_kd_trees)]
+
     for i, arr in enumerate(input_np_arrays):
         print(i, i % num_kd_trees)
         index_arrays[i % num_kd_trees].append(i)

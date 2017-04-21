@@ -5,6 +5,7 @@ from util.utils import *
 import inventory
 IM_RESIZE_DIMS = (227, 227)
 kd_tree_base = "/Users/pratheeksha/School/SEA-Project/data/test/trees"
+
 model = load_model()
 
 
@@ -36,7 +37,7 @@ def main():
     top_k_feats = []
     top_k_keys = []
     query_instances = [Query(i) for i in range(inventory.NUM_KD_TREES)]
-    feat = process_input(getImage("451.jpg", "/Users/pratheeksha/School/SEA-Project/data/test/images/"))
+    feat = process_input(getImage("11.jpg", "/Users/pratheeksha/School/SEA-Project/data/test/images/"))
 
     for query in query_instances:
         top_k = query.get_knn_image_feats(feat)

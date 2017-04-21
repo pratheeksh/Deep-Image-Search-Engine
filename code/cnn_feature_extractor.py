@@ -1,14 +1,14 @@
-import numpy as np
-import pickle
-import os
-import torch
-import torch.nn as nn
-from util.utils import *
 import argparse
+import os
+import pickle
 import pprint
+
+from util.utils import *
+
 
 def convert_to_im_num(idx, array_num, max_per_array):
     return array_num * max_per_array + idx + 1
+
 
 def create_feature_matrix(data, batch_size):
     data = np.transpose(data, (0, 3, 1, 2))
@@ -30,6 +30,7 @@ def create_feature_matrix(data, batch_size):
     print(feature_matrix.shape)
     return feature_matrix
 
+
 def convert_to_dict(feature_matrix):
     feats = {}
     for i in range(feature_matrix.shape[0]):
@@ -39,10 +40,10 @@ def convert_to_dict(feature_matrix):
     return feats
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--npy_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/images_numpy', type=str)
-    parser.add_argument('--feat_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/features', type=str)
+    parser.add_argument('--npy_path', default='/Users/pratheeksha/School/SEA-Project/data/test/images_numpy', type=str)
+    parser.add_argument('--feat_path', default='/Users/pratheeksha/School/SEA-Project/data/test/features', type=str)
     parser.add_argument('--batch_size', default=10, type=int)
     opt = parser.parse_args()
     print("-------------------Settings-----------------------")
@@ -62,21 +63,25 @@ if __name__=="__main__":
             name = "feat_vec_" + m_num
             data = np.load(os.path.join(npy_path, m))
             feature_matrix = create_feature_matrix(data, b_size)
-            np.save(os.path.join(feat_path, name), feature_matrix)
+            # np.save(os.path.join(feat_path, name), feature_matrix)
+            feats_dict = convert_to_dict(feature_matrix)
+            for k in feats_dict:
+                print(feats_dict[k].shape)
+            break
+            feats_with_names = {str(int(m_num) * 100 + k) + ".jpg": feats_dict[k] for k in feats_dict}
+            pickle.dump(feats_with_names, open(os.path.join(feat_path, name + '.in'), "wb"))
             print("Saved feature matrix {}".format(m_num))
-            all_feats.append(feature_matrix)
-    all_feats = np.concatenate(tuple(all_feats), axis=0)
-    print(all_feats.shape)
-    np.save(os.path.join(feat_path, "all_feat_vecs"), all_feats)
-    print("Saved all features in one matrix")
-    feats_dict = convert_to_dict(all_feats)
-    pickle.dump(feats_dict, open(os.path.join(feat_path, "feat_vec_dict.p"), 'wb'))
-    print("Saved feature dictionary")
 
-
-
-
-
-
-
-
+            #
+            # We don't need all feats because wont scale
+            # changing the type to .p so that we can send it across stdin
+            # making the keys filename so that we don't need to keep mapping it back
+            #
+            # all_feats.append(feature_matrix)
+            # all_feats = np.concatenate(tuple(all_feats), axis=0)
+            # print(all_feats.shape)
+            # np.save(os.path.join(feat_path, "all_feat_vecs"), all_feats)
+            # print("Saved all features in one matrix")
+            # feats_dict = convert_to_dict(all_feats)
+            # pickle.dump(feats_dict, open(os.path.join(feat_path, "feat_vec_dict.p"), 'wb'))
+            # print("Saved feature dictionary")
