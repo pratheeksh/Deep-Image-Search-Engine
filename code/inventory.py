@@ -16,7 +16,10 @@ INDEX_TXT_SERVER_PORTS = []
 DOC_SERVER_PORTS = []
 TITLE_BONUS = 10.0
 
-WORKER_THREAD_COUNT = 2
+WORKER_THREAD_COUNT = 10
+WORKER_PORTS = []
+NUM_KD_TREES = 3 # Not sure which counter does what so defined my own
+
 def init_ports():
     for i in range(NUM_VEC_INDEX_SERVERS):
         port = BASE_PORT + i + 1
@@ -33,6 +36,13 @@ def init_ports():
                NUM_OBJ_INDEX_SERVERS + \
                NUM_TXT_INDEX_SERVERS + i + 1
         DOC_SERVER_PORTS.append(port)
+    for i in range(WORKER_THREAD_COUNT):
+        port = BASE_PORT + NUM_VEC_INDEX_SERVERS + \
+               NUM_OBJ_INDEX_SERVERS + \
+               NUM_TXT_INDEX_SERVERS + \
+               DOC_SERVER_PORTS +i + 1
+        WORKER_PORTS.append(port)
+
 
 
 def main():
