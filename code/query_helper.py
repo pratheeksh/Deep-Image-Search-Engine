@@ -26,7 +26,6 @@ class Query:
 
     def get_knn_image_feats(self, feature_vector):
         scores, keys = self.kd_tree.query(feature_vector, k=10)
-        # top_k = {self.file_names[i]: self.feat_vecs[i] for i in keys}
         return scores, keys
 
 
