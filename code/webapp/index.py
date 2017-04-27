@@ -1,6 +1,6 @@
 import json
 import pickle
-
+import numpy as np
 from tornado import web
 
 kd_tree_base = "data/test/features"
@@ -23,9 +23,7 @@ class Index(web.RequestHandler):
         print("Received a Index request")
         query = self.get_argument('q', '')
         id = 1  # self.get_argument('id', 1)
-        print("Image url queried {}".format(query))
-        feat = self.get_feature_vector(query)
-        scores, keys = self.get_knn_image_feats(feat)
+        scores, keys = self.get_knn_image_feats(np.fromstring(query))
         print("Size of returned results {}".format(scores))
         top_k_scores = []
         for i in range(len(scores)):

@@ -4,11 +4,12 @@ import os
 import pickle
 import urllib
 from collections import defaultdict
+from io import BytesIO
 from itertools import chain
 
 import numpy as np
 import tornado
-from skimage import io as skimageio
+from PIL import Image
 from skimage.transform import resize
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
@@ -18,8 +19,8 @@ from util.utils import convert_array_to_Variable, load_model
 from . import index, doc
 
 inventory.init_ports()
-index_servers = [inventory.HOSTNAME + str(p) for p in inventory.INDEX_SERVER_PORTS]
-doc_servers = [inventory.HOSTNAME + str(p) for p in inventory.DOC_SERVER_PORTS]
+index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERVER_PORTS]
+doc_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.DOC_SERVER_PORTS]
 NUM_RESULTS = 10
 
 SETTINGS = {
@@ -37,14 +38,17 @@ class Web(web.RequestHandler):
     def head(self):
         self.finish()
 
+    @gen.coroutine
     def get_feature_vector(self, image_url):
-
-        im = skimageio.imread(image_url)
+        print("Inside get_feature_vector", image_url)
+        http = httpclient.AsyncHTTPClient()
+        result = yield http.fetch(image_url)
+        im = Image.open(BytesIO(result.body))
+        im = np.asarray(im.load())
         print("Loaded image size", im.shape)
         image = resize(im, inventory.IM_RESIZE_DIMS)
         image = np.transpose(image, (2, 0, 1))
         image = convert_array_to_Variable(np.array([image]))
-        # pass a batch with just the queried image to alexnet
         feature_vector = self.model(image)
         print("Generated feature vector of size {}".format(feature_vector.data.numpy().shape))
         return feature_vector.data.numpy().reshape((4096,))
@@ -55,13 +59,16 @@ class Web(web.RequestHandler):
 
         q = self.get_argument('img', None)
         if q is None:
-            return
-        feature_vector = self.get_feature_vector(q)
+            print("Empty query")
+            exit(1)
+        print("From start" + q)
+        feature_vector = yield self.get_feature_vector(str(q))
         # Fetch postings from index servers
-        http = httpclient.AsyncHTTPClient()
 
-        responses = yield [http.fetch(
-            'http://%s/index?%s' % (server, urllib.parse.urlencode({'q': feature_vector}))) for server in index_servers]
+        http = httpclient.AsyncHTTPClient()
+        print(index_servers)
+        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': q})))
+                           for server in index_servers]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                           key=lambda x: -x[0])[:NUM_RESULTS]
@@ -105,16 +112,18 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
 
 def main():
     num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_DOC_SERVERS + 1
-    task_id = process.fork_processes(num_procs, max_restarts=0)
+    try:
+        model = pickle.load(open('data/model.p', 'rb'))
+    except FileNotFoundError:
+        model = load_model()
+        pickle.dump(model, open('data/model.p', 'wb'))
+
+    print("Model loaded ", type(model))
+    task_id = process.fork_processes(num_procs, max_restarts=5)
+
     if task_id == 0:
         port = inventory.BASE_PORT
-        try:
-            model = pickle.load(open('data/model.p', 'rb'))
-        except FileNotFoundError:
-            model = load_model()
-            pickle.dump(model, open('data/model.p', 'wb'))
 
-        print("Model loaded ", type(model))
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web, dict(model=model)),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
@@ -137,10 +146,10 @@ def main():
 
     app.add_sockets(netutil.bind_sockets(port))
     try:
-        IOLoop.instance().start()
+        IOLoop.current().start()
     except KeyboardInterrupt:
         log.info("Shutting down services")
-        IOLoop.instance().stop()
+        IOLoop.current().stop()
 
 
 if __name__ == '__main__':

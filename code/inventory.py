@@ -5,7 +5,7 @@ MAX_PORT = 49123
 MIN_PORT = 10000
 HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
-            (MAX_PORT - MIN_PORT) + MIN_PORT
+            (MAX_PORT - MIN_PORT) + MIN_PORT + 100
 NUM_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
 MAX_NUM_RESULTS = 10
@@ -14,8 +14,9 @@ DOC_SERVER_PORTS = []
 TITLE_BONUS = 10.0
 WORKER_THREAD_COUNT = 10
 WORKER_PORTS = []
-DOCS_STORE = "data/test/docs/docshard_%d.p"
-TREE_STORE = "data/test/trees/%d.p"
+DOCS_STORE = "data/biggertest/docs/docshard_%d.p"
+TREE_STORE = "data/biggertest/trees/%d.p"
+IM_RESIZE_DIMS = (227, 227)
 
 
 def init_ports():
