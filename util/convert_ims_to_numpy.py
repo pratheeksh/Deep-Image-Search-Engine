@@ -45,7 +45,7 @@ def convertImsToArray(path, start, end):
 
 
 start = 1
-end = min(start + MAX_IMS_PER_ARRAY, END_IM_NUM)
+end = min(start + MAX_IMS_PER_ARRAY, END_IM_NUM + 1)
 matrix_num = 0
 while start < END_IM_NUM:
     array = convertImsToArray(IM_PATH, start, end)
@@ -55,5 +55,5 @@ while start < END_IM_NUM:
     print("Saved image matrix {}".format(matrix_num))
     matrix_num += 1 
     start = end
-    end = min(start + MAX_IMS_PER_ARRAY, END_IM_NUM)
+    end = min(start + MAX_IMS_PER_ARRAY, END_IM_NUM + 1)
 
