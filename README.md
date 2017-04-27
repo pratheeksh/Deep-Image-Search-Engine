@@ -29,7 +29,8 @@ Metadata is stored as a pickled python dict, images are saved as jpgs. Below is 
                       'broken',
                       'lonelychair',
                       'emptychair'],
-             'text': 'Lovely Lonely ChairFound in an abandoned Train Car.'}
+             'text': 'Lovely Lonely ChairFound in an abandoned Train Car.',
+             'title': 'Lonely chair'}
 }
 ```
 
@@ -48,19 +49,19 @@ A selection of examples from each pickle file are printed to the screen to allow
 
 Converts folder of images to numpy arrays of a fixed size. Each image is resized. Images are assumed to be in colour. The occasional image is grayscale, in which case the image is padded with zeros to make the dimensions compatible. 
 
-Set the following variables in convert_ims_to_numpy
+Use the following command from the root folder to convert_ims_to_numpy
 
-```python
-MAX_IMS_PER_ARRAY = 100
-IM_PATH = 'sea-project/data/test/images/'
-NUMPY_PATH = 'sea-project/data/test/images_numpy/'
-IM_RESIZE_DIMS = (224, 224)
-START_IM_NUM = 1 # corresponds to test data
-END_IM_NUM = 570 # corresponds to test data
+- MAX_IMS_PER_ARRAY = 100
+- IM_PATH = 'sea-project/data/test/images/'
+- NUMPY_PATH = 'sea-project/data/test/images_numpy/'
+- IM_RESIZE_DIMS = 224
+- START_IM_NUM = 1 # corresponds to test data
+- END_IM_NUM = 570 # corresponds to test data
+
+```shell
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
+--start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
-
-The run from the root folder
-python -m code.convert_ims_to_numpy 
 
 Finally, to check the image conversion worked correctly, see check_im_to_matrix_conversion.ipynb
 
@@ -71,12 +72,52 @@ Experiments:
 
 ## Test data
 
-See data/test for a toy dataset of ~600 examples. Dataset consists of 
+See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy dataset of 2.5k examples. This larger dataset fixes the missing title in the metadata in the original toy dataset. Dataset consists of 
 * Images
 * Metadata
 * Images as a numpy matrix
 * Image features as a numpy matrix
     - Option to store and compare multiple the results of multiple feature extractors
+* Doc shards for storing the document data
+* Index shards for storing the text indices
+* Trees for storing the image features
+
+### How to build the full test dataset
+
+1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
+2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
+```shell
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
+--start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
+```
+3. Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
+```shell
+python -m code.feature-extractor.cnn_feature_extractor --npy_path NPY_PATH --feat_path FEAT_PATH
+```
+To list the keys in each dict
+```shell
+python -m code.feature-extractor.check_key_conversion
+```
+4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder
+```shell
+COMMAND
+```
+5. Create feature index shards from KD trees
+```shell
+COMMAND
+```
+6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
+```shell
+python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
+```
+7. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
+```shell
+python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
+```
+
+## To run the search engine
+
+TO DO
 
 Note: To convert from matrix number and row index to image number:
 

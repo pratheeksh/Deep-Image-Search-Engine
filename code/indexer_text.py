@@ -15,11 +15,9 @@ import re
 import math
 import logging
 import pprint
+import argparse
 
 log = logging.getLogger(__name__)
-
-DATA_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/metadata'
-IDX_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/indices'
 
 def init_indices():
     indices = []
@@ -70,27 +68,31 @@ def add_to_IDF_index(all_text, idf_index):
 def normalize_idf_index(idf_index, total_docs):
     for key in idf_index:
         val = idf_index[key]
-        idf_index[key] = math.log(total_docs / (val * 1.0))
+        idf_index[key] = math.log(max(total_docs / (val * 1.0), 1.01)) # Preventing multiplier of zero
     return idf_index
 
 def process_doc(doc, doc_id, index, idf_index):
     '''Prepare three text fields'''
-    # TO DO: Re scrape with fixed title component
-    # No title for the moment
+    if 'title' in doc:
+        title = doc['title']
+    else:
+        title = ""
+    if len(title) > 0:
+        title_tok = clean_and_tokenize(title)
+    else:
+        title_tok = []
     text = doc['text']
     text_tok = clean_and_tokenize(text)
     tags = doc['tags']
     tags = [t.lower() for t in tags if t not in stopwords.words('english')]
-    # TO DO: add title
-    doc_length = len(text_tok) + len(tags)
+    doc_length = len(text_tok) + len(tags) + len(title_tok)
     norm_unit = 1. / (doc_length * 1.)
 
     '''Process three text fields'''
-    # TO DO: add title
+    process_tokenized_text(title_tok, index, doc_id, norm_unit, True)
     process_tokenized_text(text_tok, index, doc_id, norm_unit, False)
     process_tokenized_text(tags, index, doc_id, norm_unit, False)
-    # TO DO: add title
-    unique_words = list(set(text_tok + tags))
+    unique_words = list(set(text_tok + tags + title_tok))
     add_to_IDF_index(unique_words, idf_index)
 
 def process_file(path, indices, idf_index):
@@ -107,28 +109,35 @@ def process_file(path, indices, idf_index):
     log.info("Processed {} docs".format(processed_docs))
     return indices, processed_docs
 
-def save_indices(indices, idf_index):
+def save_indices(indices, idf_index, idx_path):
     for i in range(len(indices)):
         name = "index_txt_" + str(i) + ".p"
-        pickle.dump(indices[i], open(os.path.join(IDX_PATH, name), 'wb'))
-    pickle.dump(indices[i], open(os.path.join(IDX_PATH, "txt_idf_index.p"), 'wb'))
+        pickle.dump(indices[i], open(os.path.join(idx_path, name), 'wb'))
+    pickle.dump(idf_index, open(os.path.join(idx_path, "txt_idf_index.p"), 'wb'))
     log.info("Written all indices to disk")
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/metadata', type=str)
+    parser.add_argument('--idx_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/indices', type=str)
+    opt = parser.parse_args()
+    print("-------------------Settings-----------------------")
+    pprint.pprint(opt)
+    print("-----------------------------------------------------")
     text_indices = init_indices()
     idf_index = {}
     total_docs = 0
-    for f in os.listdir(DATA_PATH):
+    for f in os.listdir(opt.data_path):
         if ".DS" in f:
             log.info("Skipping {}".format(f))
         else:
             log.info("Processing {}".format(f))
-            path = os.path.join(DATA_PATH, f)
+            path = os.path.join(opt.data_path, f)
             indices, num_processed_docs = process_file(path, text_indices, idf_index)
             total_docs += num_processed_docs
     log.info("{} docs in total".format(total_docs))
     idf_index = normalize_idf_index(idf_index, total_docs)
-    save_indices(text_indices, idf_index)
+    save_indices(text_indices, idf_index, opt.idx_path)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', level=logging.DEBUG)

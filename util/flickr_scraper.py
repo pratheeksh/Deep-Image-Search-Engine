@@ -47,8 +47,8 @@ MIN_IN_TITLE = 1
 MIN_IN_TITLE_AND_DESCR = 10
 NUM_EXAMPLES_IN_PICKLE = 2500
 path_data = '/Volumes/My Passport Ultra/StatNLP_project/OriginalData/MVSO_ImageTagData/'  #folder that contains folders with xml files - create a folder with this anme for the scropt to work
-path_pickle = '/Volumes/My Passport Ultra/FlickrData/metadata/'   #folder where you want to save pickle files - create a folder with this anme for the scropt to work
-path_images = '/Volumes/My Passport Ultra/FlickrData/images/'  #folder where you want to save images
+path_pickle = '/Volumes/My Passport Ultra/FlickrData2/metadata/'   #folder where you want to save pickle files - create a folder with this anme for the scropt to work
+path_images = '/Volumes/My Passport Ultra/FlickrData2/images/'  #folder where you want to save images
 
 
 data = {}
@@ -78,8 +78,8 @@ for subdir, dirs, files in os.walk(path_data):
             for child in root[0]:
                 if child.tag == 'title' and child.text is not None and len(child.text.split()) > MIN_IN_TITLE and isinstance(child.text, str):
                     example['title'] = child.text
-                if 'text' in example and child.tag == 'description' and child.text is not None and isinstance(child.text, str):
-                    example['text'] += child.text
+                if child.tag == 'description' and child.text is not None and isinstance(child.text, str):
+                    example['text'] = child.text
                 if child.tag == "urls":
                     example['flickr_URL'] = child[0].text
                 if child.tag == "tags":
@@ -106,7 +106,7 @@ for subdir, dirs, files in os.walk(path_data):
                     count = 0
                     data = {}
 
-                if num_from_subdir >= 10:
+                if num_from_subdir >= 20:
                     break
     print("{} processed from current folder".format(num_from_subdir))
 file_index += 1
