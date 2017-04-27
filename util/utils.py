@@ -42,7 +42,7 @@ def load_model():
     new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
     model.classifier = new_classifier
     model = model.float()
-    print(model)
+    # print(model)
     return model
 
 def load_object_model():
