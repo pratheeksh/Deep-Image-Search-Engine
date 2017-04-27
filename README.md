@@ -107,7 +107,8 @@ python -m code.indexer-mr.workers
 Run coordinator to create kd-trees.
 
 ```shell
- python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path data/biggertest/features/ --num_reducers 10```
+ python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path data/biggertest/features/ --num_reducers 10
+ ```
 
 5. Create feature index shards from KD trees
 ```shell
