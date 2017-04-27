@@ -29,7 +29,8 @@ Metadata is stored as a pickled python dict, images are saved as jpgs. Below is 
                       'broken',
                       'lonelychair',
                       'emptychair'],
-             'text': 'Lovely Lonely ChairFound in an abandoned Train Car.'}
+             'text': 'Lovely Lonely ChairFound in an abandoned Train Car.',
+             'title': 'Lonely chair'}
 }
 ```
 
@@ -48,19 +49,18 @@ A selection of examples from each pickle file are printed to the screen to allow
 
 Converts folder of images to numpy arrays of a fixed size. Each image is resized. Images are assumed to be in colour. The occasional image is grayscale, in which case the image is padded with zeros to make the dimensions compatible. 
 
-Set the following variables in convert_ims_to_numpy
+Use the following command from the root folder to convert_ims_to_numpy
 
-```python
 MAX_IMS_PER_ARRAY = 100
 IM_PATH = 'sea-project/data/test/images/'
 NUMPY_PATH = 'sea-project/data/test/images_numpy/'
-IM_RESIZE_DIMS = (224, 224)
+IM_RESIZE_DIMS = 224
 START_IM_NUM = 1 # corresponds to test data
 END_IM_NUM = 570 # corresponds to test data
-```
 
-The run from the root folder
-python -m code.convert_ims_to_numpy 
+```python
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_NUMPY_PATH --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
+```
 
 Finally, to check the image conversion worked correctly, see check_im_to_matrix_conversion.ipynb
 
@@ -71,12 +71,20 @@ Experiments:
 
 ## Test data
 
-See data/test for a toy dataset of ~600 examples. Dataset consists of 
+See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy dataset of 2.5k examples. This larger dataset fixes the missing title in the metadata in the original toy dataset. Dataset consists of 
 * Images
 * Metadata
 * Images as a numpy matrix
 * Image features as a numpy matrix
     - Option to store and compare multiple the results of multiple feature extractors
+* Doc shards for storing the document data
+* Index shards for storing the text indices
+* Trees for storing the image features
+
+### How to build the full test dataset
+
+1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
+2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
 
 Note: To convert from matrix number and row index to image number:
 
