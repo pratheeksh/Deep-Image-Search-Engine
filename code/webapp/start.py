@@ -137,7 +137,11 @@ def main():
             log.info('Doc shard %d listening on %d', shard_ix, port)
 
     app.add_sockets(netutil.bind_sockets(port))
-    IOLoop.current().start()
+    try:
+        IOLoop.instance().start()
+    except KeyboardInterrupt:
+        log.info("Shutting down services")
+        IOLoop.instance().stop()
 
 
 if __name__ == '__main__':

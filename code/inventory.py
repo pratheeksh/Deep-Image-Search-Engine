@@ -14,6 +14,8 @@ DOC_SERVER_PORTS = []
 TITLE_BONUS = 10.0
 WORKER_THREAD_COUNT = 10
 WORKER_PORTS = []
+DOCS_STORE = "data/test/docs/docshard_%d.p"
+TREE_STORE = "data/test/trees/%d.p"
 
 
 def init_ports():

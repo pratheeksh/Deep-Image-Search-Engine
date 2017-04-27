@@ -1,6 +1,8 @@
+import json
+
 from tornado import web
-import json, re, pickle
-from . import inventory
+
+
 class Doc(web.RequestHandler):
     def initialize(self, data):
         self._documents = data
@@ -23,7 +25,5 @@ class Doc(web.RequestHandler):
             results.append(result)
         self.finish(json.dumps({'results': results}))
 
-
     def _get_url_from_title(self, title):
         return 'http://en.wikipedia.org/wiki/' + title.replace(' ', '_')
-
