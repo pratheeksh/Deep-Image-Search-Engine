@@ -13,9 +13,13 @@ from skimage.transform import resize
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 
+from code import inventory
 from util.utils import convert_array_to_Variable, load_model
-from . import inventory, index, doc
+from . import index, doc
 
+inventory.init_ports()
+index_servers = [inventory.HOSTNAME + str(p) for p in inventory.INDEX_SERVER_PORTS]
+doc_servers = [inventory.HOSTNAME + str(p) for p in inventory.DOC_SERVER_PORTS]
 NUM_RESULTS = 10
 
 SETTINGS = {
@@ -56,8 +60,8 @@ class Web(web.RequestHandler):
         # Fetch postings from index servers
         http = httpclient.AsyncHTTPClient()
 
-        responses = yield [http.fetch('http://%s/index?%s' % (server, urllib.parse.urlencode({'q': feature_vector})))
-                           for server in inventory.servers['index']]
+        responses = yield [http.fetch(
+            'http://%s/index?%s' % (server, urllib.parse.urlencode({'q': feature_vector}))) for server in index_servers]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                           key=lambda x: -x[0])[:NUM_RESULTS]
@@ -89,8 +93,7 @@ class Web(web.RequestHandler):
         return futures
 
     def _get_server_for_doc_id(self, doc_id):
-        servers = inventory.servers['doc']
-        return servers[doc_id % len(servers)]
+        return doc_servers[doc_id % len(doc_servers)]
 
 
 class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
@@ -101,10 +104,10 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
 
 
 def main():
-    num_procs = inventory.NUM_INDEX_SHARDS + inventory.NUM_DOC_SHARDS + 1
+    num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_DOC_SERVERS + 1
     task_id = process.fork_processes(num_procs, max_restarts=0)
-    port = inventory.BASE_PORT + task_id
     if task_id == 0:
+        port = inventory.BASE_PORT
         try:
             model = pickle.load(open('data/model.p', 'rb'))
         except FileNotFoundError:
@@ -120,13 +123,15 @@ def main():
         ], dict(model=model), **SETTINGS))
         log.info('Front end is listening on %d', port)
     else:
-        if task_id <= inventory.NUM_INDEX_SHARDS:
+        if task_id <= inventory.NUM_INDEX_SERVERS:
             shard_ix = task_id - 1
+            port = inventory.INDEX_SERVER_PORTS[shard_ix]
 
             app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(shard_id=shard_ix))]))
             log.info('Index shard %d listening on %d', shard_ix, port)
         else:
-            shard_ix = task_id - inventory.NUM_INDEX_SHARDS - 1
+            shard_ix = task_id - inventory.NUM_INDEX_SERVERS - 1
+            port = inventory.DOC_SERVER_PORTS[shard_ix]
             data = pickle.load(open(inventory.DOCS_STORE % (shard_ix), 'rb'))
             app = httpserver.HTTPServer(web.Application([(r'/doc', doc.Doc, dict(data=data))]))
             log.info('Doc shard %d listening on %d', shard_ix, port)
