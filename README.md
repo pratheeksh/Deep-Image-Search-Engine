@@ -58,8 +58,9 @@ IM_RESIZE_DIMS = 224
 START_IM_NUM = 1 # corresponds to test data
 END_IM_NUM = 570 # corresponds to test data
 
-```python
-python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_NUMPY_PATH --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
+```shell
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_NUMPY_PATH 
+--start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 
 Finally, to check the image conversion worked correctly, see check_im_to_matrix_conversion.ipynb
