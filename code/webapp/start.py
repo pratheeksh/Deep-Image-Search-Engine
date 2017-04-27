@@ -15,6 +15,7 @@ SETTINGS = {
         }
 log = logging.getLogger(__name__)
 
+
 class Web(web.RequestHandler):
     def head(self):
         self.finish()
@@ -66,11 +67,13 @@ class Web(web.RequestHandler):
         servers = inventory.servers['doc']
         return servers[doc_id % len(servers)]
 
+
 class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
     def parse_url_path(self, path):
         if not path or path.endswith('/'):
             path += 'index.html'
         return super(IndexDotHTMLAwareStaticFileHandler, self).parse_url_path(path)
+
 
 def main():
     num_procs = inventory.NUM_INDEX_SHARDS + inventory.NUM_DOC_SHARDS + 1

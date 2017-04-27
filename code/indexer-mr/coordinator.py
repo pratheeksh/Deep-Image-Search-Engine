@@ -1,15 +1,14 @@
 import argparse
 import json
 import os
-import sys
 import threading
 import time
 import urllib.request
 from multiprocessing.pool import ThreadPool
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+# sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-import inventory
+from code import inventory
 
 inventory.init_ports()
 
