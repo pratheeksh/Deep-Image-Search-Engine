@@ -51,12 +51,12 @@ Converts folder of images to numpy arrays of a fixed size. Each image is resized
 
 Use the following command from the root folder to convert_ims_to_numpy
 
-MAX_IMS_PER_ARRAY = 100
-IM_PATH = 'sea-project/data/test/images/'
-NUMPY_PATH = 'sea-project/data/test/images_numpy/'
-IM_RESIZE_DIMS = 224
-START_IM_NUM = 1 # corresponds to test data
-END_IM_NUM = 570 # corresponds to test data
+- MAX_IMS_PER_ARRAY = 100
+- IM_PATH = 'sea-project/data/test/images/'
+- NUMPY_PATH = 'sea-project/data/test/images_numpy/'
+- IM_RESIZE_DIMS = 224
+- START_IM_NUM = 1 # corresponds to test data
+- END_IM_NUM = 570 # corresponds to test data
 
 ```shell
 python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_NUMPY_PATH 
