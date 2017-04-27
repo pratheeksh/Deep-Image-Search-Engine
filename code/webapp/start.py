@@ -116,7 +116,7 @@ def main():
             shard_ix = task_id - 1
             model = pickle.load(open('data/model.p', 'rb'))
             print("Model loaded ", type(model))
-            app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(model=model))]))
+            app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(shard_id=shard_ix))]))
             log.info('Index shard %d listening on %d', shard_ix, port)
         else:
             shard_ix = task_id - inventory.NUM_INDEX_SHARDS - 1
