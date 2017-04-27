@@ -1,12 +1,16 @@
 import argparse
 import json
 import os
+import sys
 import threading
 import time
 import urllib.request
 from multiprocessing.pool import ThreadPool
 
-from code import inventory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+import inventory
+
 inventory.init_ports()
 
 parser = argparse.ArgumentParser(description='Coordinator for the map reduce apis')
@@ -27,6 +31,8 @@ list_lock = threading.Lock()
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 print(len(worker_servers))
+
+
 # assert(len(worker_servers) == inventory.WORKER_THREAD_COUNT)
 def thread_helper(is_mapper, urls):
     pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
@@ -62,7 +68,6 @@ def fetch_url(url_handler, is_mapping):
         if is_mapping:
             with list_lock:
                 map_task_ids.append(status_object['map_task_id'])
-
 
 
 def get_reducer_url(server, reducer_ix):
