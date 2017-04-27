@@ -59,7 +59,7 @@ Use the following command from the root folder to convert_ims_to_numpy
 - END_IM_NUM = 570 # corresponds to test data
 
 ```shell
-python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_NUMPY_PATH 
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 
