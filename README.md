@@ -99,12 +99,16 @@ To list the keys in each dict
 python -m code.feature-extractor.check_key_conversion
 ```
 4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder
-TODO
-5. Create feature index shards from KD trees
-TODO
-6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder
 ```shell
 COMMAND
+```
+5. Create feature index shards from KD trees
+```shell
+COMMAND
+```
+6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and than the number of doc shards is set in the code.inventory
+```shell
+python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
 ```
 7. Create test index shards from metadata. Assumes there are n data_i.p files in the metadata folder
 ```shell

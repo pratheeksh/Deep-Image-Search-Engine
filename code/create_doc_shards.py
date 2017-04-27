@@ -10,13 +10,12 @@ import random
 from nltk.corpus import stopwords
 import re
 import math
+import argparse
 import logging
 import pprint
 
 log = logging.getLogger(__name__)
-
-DATA_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/metadata'
-DOC_PATH = '/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/test/docs'
+NO_TITLES = 0
 
 def init_doc_shards():
     doc_shards = []
@@ -30,10 +29,16 @@ def load_metadata_file(path):
     return data
 
 def process_doc(doc, doc_id, doc_shard):
-    # TO DO: Add title
+    if 'title' not in doc:
+        global NO_TITLES
+        NO_TITLES += 1
+        title = ""
+    else:
+        title = clean_text(doc['title'])
     text = clean_text(doc['text'])
     new_doc = {
     'filename' : doc['filename'],
+    'title' : title,
     'text' : text,
     'tags' : doc['tags'],
     'flickr_url' : doc['flickr_URL'],
@@ -55,25 +60,41 @@ def process_file(path, doc_shards):
     log.info("Processed {} docs".format(processed_docs))
     return doc_shards, processed_docs
 
-def save_doc_shards(doc_shards):
+def print_egs_from_each(doc_shards):
+    for d in doc_shards:
+        for k in d:
+            print("Key: {}".format(k))
+            pprint.pprint(d[k])
+            break
+
+def save_doc_shards(doc_shards, doc_path):
     for i in range(len(doc_shards)):
         name = "docshard_" + str(i) + ".p"
-        pickle.dump(doc_shards[i], open(os.path.join(DOC_PATH, name), 'wb'))
+        pickle.dump(doc_shards[i], open(os.path.join(doc_path, name), 'wb'))
     log.info("Written all doc shards to disk")
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/metadata', type=str)
+    parser.add_argument('--doc_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/docs', type=str)
+    opt = parser.parse_args()
+    print("-------------------Settings-----------------------")
+    pprint.pprint(opt)
+    print("-----------------------------------------------------")
     doc_shards = init_doc_shards()
     total_docs = 0
-    for f in os.listdir(DATA_PATH):
+    for f in os.listdir(opt.data_path):
         if ".DS" in f:
             log.info("Skipping {}".format(f))
         else:
             log.info("Processing {}".format(f))
-            path = os.path.join(DATA_PATH, f)
+            path = os.path.join(opt.data_path, f)
             doc_shards, num_processed_docs = process_file(path, doc_shards)
             total_docs += num_processed_docs
     log.info("{} docs in total".format(total_docs))
-    save_doc_shards(doc_shards)
+    log.info("{} docs with no titles".format(NO_TITLES))
+    print_egs_from_each(doc_shards)
+    save_doc_shards(doc_shards, opt.doc_path)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', level=logging.DEBUG)
