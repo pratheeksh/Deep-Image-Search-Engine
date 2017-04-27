@@ -13,7 +13,7 @@ from skimage.transform import resize
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 
-from util.utils import convert_array_to_Variable
+from util.utils import convert_array_to_Variable, load_model
 from . import inventory, index, doc
 
 NUM_RESULTS = 10
@@ -105,17 +105,24 @@ def main():
     task_id = process.fork_processes(num_procs, max_restarts=0)
     port = inventory.BASE_PORT + task_id
     if task_id == 0:
+        try:
+            model = pickle.load(open('data/model.p', 'rb'))
+        except FileNotFoundError:
+            model = load_model()
+            pickle.dump(model, open('data/model.p', 'wb'))
+
+        print("Model loaded ", type(model))
+
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
-        ], **SETTINGS))
+        ], dict(model=model), **SETTINGS))
         log.info('Front end is listening on %d', port)
     else:
         if task_id <= inventory.NUM_INDEX_SHARDS:
             shard_ix = task_id - 1
-            model = pickle.load(open('data/model.p', 'rb'))
-            print("Model loaded ", type(model))
+
             app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(shard_id=shard_ix))]))
             log.info('Index shard %d listening on %d', shard_ix, port)
         else:
