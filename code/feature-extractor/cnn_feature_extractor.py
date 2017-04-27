@@ -11,6 +11,7 @@ def convert_to_im_num(idx, array_num, max_per_array):
 
 
 def create_feature_matrix(data, batch_size):
+    model = load_model()
     data = np.transpose(data, (0, 3, 1, 2))
     print(data.shape)
     feats = []
@@ -30,6 +31,19 @@ def create_feature_matrix(data, batch_size):
     print(feature_matrix.shape)
     return feature_matrix
 
+def create_feature_vector(data):
+    model = load_model()
+    feats = []
+    data = np.transpose(data, (2, 0, 1))
+    batch = convert_array_to_Variable(data)
+    
+    f = model(batch)
+    feats.append(f)
+    feature_matrix = torch.cat(feats, 0)
+    feature_matrix = feature_matrix.data.numpy()
+    print(feature_matrix.shape)
+    return feature_matrix
+
 
 def convert_to_dict(feature_matrix):
     feats = {}
@@ -42,8 +56,8 @@ def convert_to_dict(feature_matrix):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--npy_path', default='/Users/pratheeksha/School/SEA-Project/data/test/images_numpy', type=str)
-    parser.add_argument('--feat_path', default='/Users/pratheeksha/School/SEA-Project/data/test/features', type=str)
+    parser.add_argument('--npy_path', default='data/test/images_numpy', type=str)
+    parser.add_argument('--feat_path', default='data/test/features', type=str)
     parser.add_argument('--batch_size', default=10, type=int)
     opt = parser.parse_args()
     print("-------------------Settings-----------------------")
