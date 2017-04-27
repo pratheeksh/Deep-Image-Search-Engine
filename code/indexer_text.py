@@ -68,7 +68,7 @@ def add_to_IDF_index(all_text, idf_index):
 def normalize_idf_index(idf_index, total_docs):
     for key in idf_index:
         val = idf_index[key]
-        idf_index[key] = math.log(total_docs / (val * 1.0))
+        idf_index[key] = math.log(max(total_docs / (val * 1.0), 1.01)) # Preventing multiplier of zero
     return idf_index
 
 def process_doc(doc, doc_id, index, idf_index):
@@ -113,7 +113,7 @@ def save_indices(indices, idf_index, idx_path):
     for i in range(len(indices)):
         name = "index_txt_" + str(i) + ".p"
         pickle.dump(indices[i], open(os.path.join(idx_path, name), 'wb'))
-    pickle.dump(indices[i], open(os.path.join(idx_path, "txt_idf_index.p"), 'wb'))
+    pickle.dump(idf_index, open(os.path.join(idx_path, "txt_idf_index.p"), 'wb'))
     log.info("Written all indices to disk")
 
 def main():
