@@ -6,7 +6,7 @@ import time
 import urllib.request
 from multiprocessing.pool import ThreadPool
 
-import inventory
+from code import inventory
 inventory.init_ports()
 
 parser = argparse.ArgumentParser(description='Coordinator for the map reduce apis')

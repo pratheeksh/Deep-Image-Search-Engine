@@ -12,7 +12,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import RequestHandler, Application
 import pickle
 
-import inventory
+from code import inventory
 inventory.init_ports()
 root = os.path.dirname(__file__)
 

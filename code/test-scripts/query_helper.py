@@ -1,4 +1,4 @@
-import inventory
+from code import inventory
 from util.image_processing_fns import *
 from util.utils import *
 
@@ -12,7 +12,7 @@ def process_input(image):
     image = resizeImageAlt(image, IM_RESIZE_DIMS)
     image = convertImageToArray(image)
     image = check_and_pad(image, IM_RESIZE_DIMS)
-    image = np.transpose(image, (2, 0, 1))
+    image =  np.transpose(image, (2, 0, 1))
     image = convert_array_to_Variable(np.array([image]))
     feature_vector = model(image)
     return feature_vector.data.numpy().reshape((4096,))
