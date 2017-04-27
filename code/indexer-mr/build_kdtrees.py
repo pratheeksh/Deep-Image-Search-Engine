@@ -5,9 +5,7 @@ from multiprocessing.pool import ThreadPool
 
 import numpy as np
 from scipy.spatial import KDTree
-
 from code import inventory
-
 parser = argparse.ArgumentParser(description='Generate kd-tree pickles in parallel')
 
 parser.add_argument('--data_path', type=str, default='/Users/pratheeksha/School/SEA-Project/data/test/features',

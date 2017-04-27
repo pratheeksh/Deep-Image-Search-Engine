@@ -4,15 +4,18 @@ import io
 import json
 import logging
 import os
+import pickle
+import sys
 import uuid
 from subprocess import Popen, PIPE
 
 from tornado import gen, process, netutil, ioloop, httpserver
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import RequestHandler, Application
-import pickle
 
-from code import inventory
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import inventory
+
 inventory.init_ports()
 root = os.path.dirname(__file__)
 
