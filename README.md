@@ -106,13 +106,13 @@ COMMAND
 ```shell
 COMMAND
 ```
-6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and than the number of doc shards is set in the code.inventory
+6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable NUM_DOC_SERVERS
 ```shell
 python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
 ```
-7. Create test index shards from metadata. Assumes there are n data_i.p files in the metadata folder
+7. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable NUM_TXT_INDEX_SERVERS
 ```shell
-COMMAND
+python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 ```
 
 ## To run the search engine
