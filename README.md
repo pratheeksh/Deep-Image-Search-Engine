@@ -86,6 +86,10 @@ See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy 
 
 1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
 2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
+```shell
+python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
+--start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
+```
 3. Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
 ```shell
 python -m code.feature-extractor.cnn_feature_extractor --npy_path NPY_PATH --feat_path FEAT_PATH
