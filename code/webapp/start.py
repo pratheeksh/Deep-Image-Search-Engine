@@ -1,17 +1,17 @@
 import tornado, pickle, logging, urllib
 from tornado.ioloop import IOLoop
 from tornado import web, gen, process, httpserver, httpclient, netutil
-from . import inventory, index
+from . import inventory, index, doc
 from itertools import chain
 from collections import defaultdict
-import json, sys, os
-
+import json, sys, os, pickle
+from util.utils import load_model
 NUM_RESULTS = 10
-SETTINGS = {'static_path': inventory.WEBAPP_PATH}
+
 SETTINGS = {
             "debug": True,
-            "static_path": os.path.join(os.path.dirname(__file__), inventory.WEBAPP_PATH),
-            "template_path": os.path.join(os.path.dirname(__file__), inventory.WEBAPP_PATH)
+            "static_path": os.path.join(os.path.dirname(__file__), 'static/'),
+            "template_path": os.path.join(os.path.dirname(__file__), 'templates/')
         }
 log = logging.getLogger(__name__)
 
@@ -21,7 +21,9 @@ class Web(web.RequestHandler):
 
     @gen.coroutine
     def get(self):
-        q = self.get_argument('q', None)
+        print("Query received")
+
+        q = self.get_argument('img', None)
         if q is None:
             return
 
@@ -31,12 +33,14 @@ class Web(web.RequestHandler):
                            for server in inventory.servers['index']]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
-                          key=lambda x: -x[1])[:NUM_RESULTS]
-
+                          key=lambda x: -x[0])[:NUM_RESULTS]
+        #postings have the format {"postings": [[53.61725232526324, "285.jpg"]} score, id
+        print(postings)
         # Batch requests to doc servers
         server_to_doc_ids = defaultdict(list)
         doc_id_to_result_ix = {}
-        for i, (doc_id, _) in enumerate(postings):
+        for i, (_, doc_name) in enumerate(postings):
+            doc_id = int(doc_name.split('.')[0])
             doc_id_to_result_ix[doc_id] = i
             server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append(doc_id)
         responses = yield self._get_doc_server_futures(q, server_to_doc_ids)
@@ -46,8 +50,9 @@ class Web(web.RequestHandler):
         for response in responses:
             for result in json.loads(response.body.decode())['results']:
                 result_list[doc_id_to_result_ix[int(result['doc_id'])]] = result
+        print("Finished retrieving documents", result_list)
+        self.write(json.dumps({'num_results': len(result_list), 'results': result_list}))
 
-        self.finish(json.dumps({'num_results': len(result_list), 'results': result_list}))
 
     def _get_doc_server_futures(self, q, server_to_doc_ids):
         http = httpclient.AsyncHTTPClient()
@@ -68,30 +73,28 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
         return super(IndexDotHTMLAwareStaticFileHandler, self).parse_url_path(path)
 
 def main():
-    num_procs = inventory.NUM_INDEX_SHARDS 
+    num_procs = inventory.NUM_INDEX_SHARDS + inventory.NUM_DOC_SHARDS + 1
     task_id = process.fork_processes(num_procs, max_restarts=0)
     port = inventory.BASE_PORT + task_id
     if task_id == 0 : 
         app = httpserver.HTTPServer(tornado.web.Application([
                 (r'/search', Web),
-                (r'/(.*)', tornado.web.StaticFileHandler, {"path" : SETTINGS["static_path"], "default_filename": "index.html"})
+                (r'/(.*)', tornado.web.StaticFileHandler, {"path" : SETTINGS["template_path"], "default_filename": "index.html"})
             ], **SETTINGS))
         log.info('Front end is listening on %d', port)
     else:
-        if task_id < inventory.NUM_INDEX_SHARDS:
-            shard_ix = task_id 
-            data = None #pickle.load(open(inventory.POSTINGS_STORE % (shard_ix), 'rb'))
-            app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(data=data))]))
+        if task_id <= inventory.NUM_INDEX_SHARDS:
+            shard_ix = task_id - 1
+            model = pickle.load(open('data/model.p', 'rb'))
+            print("Model loaded ", type(model))
+            app = httpserver.HTTPServer(web.Application([(r'/index', index.Index, dict(model=model))]))
             log.info('Index shard %d listening on %d', shard_ix, port)
         else:
-            print("TODO : Load doc servers")
-            sys.exit()
-            '''
             shard_ix = task_id - inventory.NUM_INDEX_SHARDS - 1
-            data = None #pickle.load(open(inventory.DOCS_STORE % (shard_ix), 'rb'))
+            data = pickle.load(open(inventory.DOCS_STORE % (shard_ix), 'rb'))
             app = httpserver.HTTPServer(web.Application([(r'/doc', doc.Doc, dict(data=data))]))
             log.info('Doc shard %d listening on %d', shard_ix, port)
-            '''
+
     app.add_sockets(netutil.bind_sockets(port))
     IOLoop.current().start()
 
