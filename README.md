@@ -99,9 +99,16 @@ To list the keys in each dict
 python -m code.feature-extractor.check_key_conversion
 ```
 4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder
+Start workers to run the map reduce job.
+
 ```shell
-COMMAND
+python -m code.indexer-mr.workers
 ```
+Run coordinator to create kd-trees.
+
+```shell
+ python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path data/biggertest/features/ --num_reducers 10```
+
 5. Create feature index shards from KD trees
 ```shell
 COMMAND
