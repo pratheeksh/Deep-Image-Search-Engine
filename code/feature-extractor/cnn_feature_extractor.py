@@ -10,8 +10,7 @@ def convert_to_im_num(idx, array_num, max_per_array):
     return array_num * max_per_array + idx + 1
 
 
-def create_feature_matrix(data, batch_size):
-    model = load_model()
+def create_feature_matrix(data, batch_size, model):
     data = np.transpose(data, (0, 3, 1, 2))
     print(data.shape)
     feats = []
@@ -45,10 +44,10 @@ def create_feature_vector(data):
     return feature_matrix
 
 
-def convert_to_dict(feature_matrix):
+def convert_to_dict(feature_matrix, max_per_array):
     feats = {}
     for i in range(feature_matrix.shape[0]):
-        key = convert_to_im_num(i, 0, 570)
+        key = convert_to_im_num(i, 0, max_per_array)
         feature_vec = feature_matrix[i]
         feats[key] = feature_vec
     return feats
@@ -76,15 +75,17 @@ if __name__ == "__main__":
             m_num = str(m[:-4])
             name = "feat_vec_" + m_num
             data = np.load(os.path.join(npy_path, m))
-            feature_matrix = create_feature_matrix(data, b_size)
+            feature_matrix = create_feature_matrix(data, b_size, model)
             # np.save(os.path.join(feat_path, name), feature_matrix)
-            feats_dict = convert_to_dict(feature_matrix)
+            feats_dict = convert_to_dict(feature_matrix, data.shape[0])
             for k in feats_dict:
                 print(feats_dict[k].shape)
-            break
+                break
             feats_with_names = {str(int(m_num) * 100 + k) + ".jpg": feats_dict[k] for k in feats_dict}
             pickle.dump(feats_with_names, open(os.path.join(feat_path, name + '.in'), "wb"))
             print("Saved feature matrix {}".format(m_num))
+            keys = sorted(list(feats_with_names.keys()))
+            print("Num keys: {}, first key: {}".format(len(keys), keys[0]))
 
             #
             # We don't need all feats because wont scale
