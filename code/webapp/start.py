@@ -115,12 +115,11 @@ def main():
             pickle.dump(model, open('data/model.p', 'wb'))
 
         print("Model loaded ", type(model))
-
         app = httpserver.HTTPServer(tornado.web.Application([
-            (r'/search', Web),
+            (r'/search', Web, dict(model=model)),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
-        ], dict(model=model), **SETTINGS))
+        ], **SETTINGS))
         log.info('Front end is listening on %d', port)
     else:
         if task_id <= inventory.NUM_INDEX_SERVERS:
