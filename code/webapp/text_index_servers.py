@@ -33,11 +33,9 @@ class IndexServer(tornado.web.RequestHandler):
         query = self.get_arguments('q', True)
         print("Query is: {}".format(query))
         results = self.get_results(query)
-        # print(results)
         self.write(results)
 
     def merge_mult_queries(self, results_dict):
-        # FIX BY USING K WAY MERGE
         queries = list(results_dict.keys())
         if len(queries) == 1:
             results = results_dict[queries[0]]
@@ -108,7 +106,7 @@ class IndexServer(tornado.web.RequestHandler):
         results = sorted(results, key=lambda x: -x[1])
         if len(results) > self.max_results:
             results = results[:self.max_results]
-            results = sorted(results, key=lambda x: x[0])
+        results = sorted(results, key=lambda x: x[0])
         return results
 
 def load_indices():
