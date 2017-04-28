@@ -1,5 +1,6 @@
 import json
 import pickle
+
 import numpy as np
 from tornado import web
 
@@ -21,8 +22,8 @@ class Index(web.RequestHandler):
 
     def get(self):
         print("Received a Index request")
-        query = self.get_argument('q', '')
-        id = 1  # self.get_argument('id', 1)
+        query = json.loads(self.get_argument('q', ''))
+        # id = 1  # self.get_argument('id', 1)
         scores, keys = self.get_knn_image_feats(np.fromstring(query))
         print("Size of returned results {}".format(scores))
         top_k_scores = []

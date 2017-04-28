@@ -10,11 +10,11 @@ from itertools import chain
 import numpy as np
 import tornado
 from PIL import Image
-from skimage.transform import resize
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 
 from code import inventory
+from util.image_processing_fns import resizeImageAlt, convertImageToArray, check_and_pad
 from util.utils import convert_array_to_Variable, load_model
 from . import index, doc
 
@@ -44,13 +44,13 @@ class Web(web.RequestHandler):
         http = httpclient.AsyncHTTPClient()
         result = yield http.fetch(image_url)
         im = Image.open(BytesIO(result.body))
-        im = np.asarray(im.load())
-        print("Loaded image size", im.shape)
-        image = resize(im, inventory.IM_RESIZE_DIMS)
+        # im = im.load()
+        image = resizeImageAlt(im, inventory.IM_RESIZE_DIMS)
+        image = convertImageToArray(image)
+        image = check_and_pad(image, inventory.IM_RESIZE_DIMS)
         image = np.transpose(image, (2, 0, 1))
         image = convert_array_to_Variable(np.array([image]))
-        feature_vector = self.model(image)
-        print("Generated feature vector of size {}".format(feature_vector.data.numpy().shape))
+        feature_vector = self.model(image.load())
         return feature_vector.data.numpy().reshape((4096,))
 
     @gen.coroutine
@@ -67,7 +67,7 @@ class Web(web.RequestHandler):
 
         http = httpclient.AsyncHTTPClient()
         print(index_servers)
-        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': q})))
+        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': json.dumps(str(q))})))
                            for server in index_servers]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
