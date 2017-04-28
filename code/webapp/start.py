@@ -14,7 +14,7 @@ from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 
 from code import inventory
-from util.image_processing_fns import resizeImageAlt, convertImageToArray, check_and_pad
+from util.image_processing_fns import resizeImageAlt, convertImageToArray
 from util.utils import convert_array_to_Variable, load_model
 from . import index, doc
 
@@ -65,8 +65,9 @@ class Web(web.RequestHandler):
 
         http = httpclient.AsyncHTTPClient()
         print(index_servers)
-        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': json.dumps(str(feature_vector))})))
-                           for server in index_servers]
+        responses = yield [
+            http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': json.dumps(str(list(feature_vector)))})))
+            for server in index_servers]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                           key=lambda x: -x[0])[:NUM_RESULTS]
