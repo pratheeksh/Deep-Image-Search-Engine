@@ -16,6 +16,24 @@
 </head>
 
 <body>
+<form>
+    <input type="text" id="imagename" value="" />
+    <input type="button" id="btn" value="GO" />
+</form>
+
+ <script type="text/javascript">
+        document.getElementById('btn').onclick = function() {
+           console.log("Button clicked")
+            var val = document.getElementById('imagename').value,
+                src = val,
+                img = document.createElement('img');
+
+            img.src = src;
+            document.body.appendChild(img);
+        }
+    </script>
+
+
 <div class="row">
  
   <div class="col-md-7">
@@ -23,8 +41,8 @@
     <br>
     <div class="row">
       <div class="col-md-6">
-        <p><img src="http://static.pyimagesearch.com.s3-us-west-2.amazonaws.com/vacation-photos/queries/103100.png" style="height: 250px;" class="img"></p>
-        <p><img src="http://static.pyimagesearch.com.s3-us-west-2.amazonaws.com/vacation-photos/queries/103300.png" style="height: 250px;" class="img"></p>
+        <p><img src="https://upload.wikimedia.org/wikipedia/commons/6/63/African_elephant_warning_raised_trunk.jpg" style="height: 250px;" class="img"></p>
+        <p><img src="https://farm8.staticflickr.com/7407/11857383274_f0aecb5583.jpg" style="height: 250px;" class="img"></p>
       </div>
       <div class="col-md-6">
         <p><img src="http://static.pyimagesearch.com.s3-us-west-2.amazonaws.com/vacation-photos/queries/127502.png" style="height: 250px;" class="img"></p>
