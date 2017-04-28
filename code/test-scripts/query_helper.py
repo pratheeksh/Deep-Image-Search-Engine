@@ -3,7 +3,7 @@ from util.image_processing_fns import *
 from util.utils import *
 
 IM_RESIZE_DIMS = (227, 227)
-kd_tree_base = "/Users/pratheeksha/School/SEA-Project/data/test/features"
+kd_tree_base = "data/test/features"
 
 model = load_model()
 
@@ -34,7 +34,7 @@ class Query:
 def main():
     top_k_scores = []
     query_instances = [Query(i) for i in range(inventory.NUM_KD_TREES)]
-    feat = process_input(getImage("11.jpg", "/Users/pratheeksha/School/SEA-Project/data/test/images/"))
+    feat = process_input(getImage("9.jpg", "data/test/images/"))
 
     for query in query_instances:
         scores, keys = query.get_knn_image_feats(feat)

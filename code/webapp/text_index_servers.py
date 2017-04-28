@@ -122,17 +122,17 @@ def init_servers():
     for i in range(NUM_TXT_INDEX_SERVERS):
         idx_s = tornado.web.Application([
             (r"/index", IndexServer, dict(index_holder=indices[i], 
-                                          port=INDEX_TXT_SERVER_PORTS[i],
+                                          port=TXT_INDEX_SERVER_PORTS[i],
                                           max_results=MAX_NUM_RESULTS)),
              ])
         idx_s.listen(INDEX_TXT_SERVER_PORTS[i])
         name = "http://" + socket.gethostname() + ":"
-        print("Index server {} listing on {}".format(i, name + str(INDEX_TXT_SERVER_PORTS[i])))
+        print("Index server {} listing on {}".format(i, name + str(TXT_INDEX_SERVER_PORTS[i])))
         index_servers.append(idx_s)
     return index_servers
     
 def main():
-    init_ports()
+    # init_ports()
     index_servers = init_servers()
     print("Servers ready")
     tornado.ioloop.IOLoop.current().start()
