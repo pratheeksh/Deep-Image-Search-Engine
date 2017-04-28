@@ -16,7 +16,7 @@ WORKER_THREAD_COUNT = 10
 WORKER_PORTS = []
 DOCS_STORE = "data/biggertest/docs/docshard_%d.p"
 TREE_STORE = "data/biggertest/trees/%d.p"
-IM_RESIZE_DIMS = (3, 227, 227)
+IM_RESIZE_DIMS = (227, 227)
 
 
 def init_ports():

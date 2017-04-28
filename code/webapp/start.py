@@ -44,13 +44,11 @@ class Web(web.RequestHandler):
         http = httpclient.AsyncHTTPClient()
         result = yield http.fetch(image_url)
         im = Image.open(BytesIO(result.body))
-        # im = im.load()
         image = resizeImageAlt(im, inventory.IM_RESIZE_DIMS)
         image = convertImageToArray(image)
-        image = check_and_pad(image, inventory.IM_RESIZE_DIMS)
-        image = np.transpose(image, (2, 0, 1))
+        image = np.transpose(np.array(image), (2, 0, 1))
         image = convert_array_to_Variable(np.array([image]))
-        feature_vector = self.model(image.load())
+        feature_vector = self.model(image)
         return feature_vector.data.numpy().reshape((4096,))
 
     @gen.coroutine
