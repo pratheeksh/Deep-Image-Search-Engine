@@ -44,8 +44,7 @@ class MapHandler(RequestHandler):
             for line in output.split('\n'):
                 try:
                     key, val = line.split('\t')
-                    reducer_idx = int(hashlib.sha1(key.encode('utf-8')).hexdigest(),
-                                      16) % num_reducers
+                    reducer_idx = int(key.split('.')[0]) % num_reducers
                     global_map_dict[map_task_id][reducer_idx].append((key, val))
 
                 except ValueError:

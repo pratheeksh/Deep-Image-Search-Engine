@@ -3,8 +3,8 @@ import pickle
 
 import numpy as np
 from tornado import web
-
-kd_tree_base = "data/test/features"
+from code import inventory
+kd_tree_base = inventory.TREE_STORE
 
 
 class Index(web.RequestHandler):
