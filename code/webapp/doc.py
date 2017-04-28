@@ -11,12 +11,13 @@ class Doc(web.RequestHandler):
         self.finish()
 
     def get(self):
+
         did = self.get_argument('id', None)
         dids = did or self.get_argument('ids', '')
-        dq = self.get_argument('q', '')
         results = []
 
         for doc_id in dids.split(','):
+            print("Retrieving document for %d", int(doc_id), )
             doc = self._documents[int(doc_id)]
             result = {'doc_id': doc_id,
                       'text': doc['text'],
@@ -25,5 +26,4 @@ class Doc(web.RequestHandler):
             results.append(result)
         self.finish(json.dumps({'results': results}))
 
-    def _get_url_from_title(self, title):
-        return 'http://en.wikipedia.org/wiki/' + title.replace(' ', '_')
+

@@ -21,13 +21,13 @@ class Index(web.RequestHandler):
         self.finish()
 
     def get(self):
-        print("Received a Index request")
-        query = json.loads(self.get_argument('q', ''))
-        # id = 1  # self.get_argument('id', 1)
-        scores, keys = self.get_knn_image_feats(np.fromstring(query))
-        print("Size of returned results {}".format(scores))
+
+        query = json.loads(self.get_argument('featvec', ''))
+        query = query[1:len(query)-1]
+        featvec = [float(x) for x in query.split(',')]
+        scores, keys = self.get_knn_image_feats(featvec)
         top_k_scores = []
         for i in range(len(scores)):
             top_k_scores.append((scores[i], self.file_names[keys[i]]))
         results = sorted(top_k_scores)
-        self.finish(json.dumps({'postings': results[:10]}))
+        self.finish(json.dumps({'postings': results[:20]}))
