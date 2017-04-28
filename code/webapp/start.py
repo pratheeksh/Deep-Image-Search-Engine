@@ -65,7 +65,7 @@ class Web(web.RequestHandler):
 
         http = httpclient.AsyncHTTPClient()
         print(index_servers)
-        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': json.dumps(str(q))})))
+        responses = yield [http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': json.dumps(str(feature_vector))})))
                            for server in index_servers]
         # Flatten postings and sort by score
         postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
