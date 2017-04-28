@@ -125,18 +125,18 @@ def init_servers():
                                           port=TXT_INDEX_SERVER_PORTS[i],
                                           max_results=MAX_NUM_RESULTS)),
              ])
-        idx_s.listen(INDEX_TXT_SERVER_PORTS[i])
+        idx_s.listen(TXT_INDEX_SERVER_PORTS[i])
         name = "http://" + socket.gethostname() + ":"
         print("Index server {} listing on {}".format(i, name + str(TXT_INDEX_SERVER_PORTS[i])))
         index_servers.append(idx_s)
     return index_servers
     
 def main():
-    # init_ports()
     index_servers = init_servers()
     print("Servers ready")
     tornado.ioloop.IOLoop.current().start()
 
 
 if __name__=="__main__":
+    init_ports()
     main()
