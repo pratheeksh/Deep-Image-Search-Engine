@@ -14,15 +14,19 @@ class Doc(web.RequestHandler):
 
         did = self.get_argument('id', None)
         dids = did or self.get_argument('ids', '')
+        source = self.get_argument('src', 'None')
+        sources = source.split(',')
         results = []
 
-        for doc_id in dids.split(','):
+        for i, doc_id in enumerate(dids.split(',')):
             print("Retrieving document for %d", int(doc_id), )
             doc = self._documents[int(doc_id)]
             result = {'doc_id': doc_id,
-                      'text': doc['text'],
-                      'filename': doc['filename'],
-                      'image_url': doc['image_url']}
+                      'title': doc['title'],
+                      'text': doc['text'][:max(25, len(doc['text']))],
+                      'flickr': doc['flickr_url'],
+                      'image_url': doc['image_url'],
+                      'source' : sources[i]}
             results.append(result)
         self.finish(json.dumps({'results': results}))
 

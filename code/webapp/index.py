@@ -28,6 +28,9 @@ class Index(web.RequestHandler):
         scores, keys = self.get_knn_image_feats(featvec)
         top_k_scores = []
         for i in range(len(scores)):
-            top_k_scores.append((scores[i], self.file_names[keys[i]]))
+            # top_k_scores.append((scores[i], self.file_names[keys[i]]))
+            key = self.file_names[keys[i]]
+            key = int(key.split(".")[0])
+            top_k_scores.append((key, scores[i]))
         results = sorted(top_k_scores)
         self.finish(json.dumps({'postings': results[:20]}))

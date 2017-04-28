@@ -1,8 +1,8 @@
 import getpass
 import hashlib
 
-MAX_PORT = 49123
-MIN_PORT = 10000
+MAX_PORT = 59123
+MIN_PORT = 20000
 HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT + 100
@@ -35,6 +35,11 @@ def init_ports():
     for i in range(NUM_TXT_INDEX_SERVERS):
         port = BASE_PORT + NUM_INDEX_SERVERS + NUM_DOC_SERVERS + WORKER_THREAD_COUNT + i + 1
         TXT_INDEX_SERVER_PORTS.append(port)
+    print("Frontend port: {}".format(BASE_PORT))
+    print("Index server ports: {}".format(INDEX_SERVER_PORTS))
+    print("Doc server ports: {}".format(DOC_SERVER_PORTS))
+    print("Worker ports: {}".format(WORKER_PORTS))
+    print("Index txt server ports: {}".format(TXT_INDEX_SERVER_PORTS))
 
 if __name__ == "__main__":
     init_ports()
