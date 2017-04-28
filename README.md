@@ -8,30 +8,32 @@ flickr_scaper.py parses the XML files available a part of the MVSO dataset, chec
 Each example is assigned a unique integer key. This key is the name of the image file and the key to index into the metadata
 Metadata is stored as a pickled python dict, images are saved as jpgs. Below is an example of the metadata stored:
 ```python
-{102 : {'filename': '459.jpg',
-             'flickr_URL': 'https://www.flickr.com/photos/jeffrt/10336878805/',
-             'image_url': 'https://farm4.staticflickr.com/3758/10336878805_de94a043ba.jpg',
-             'tags': ['nikon',
-                      'd700',
-                      '35mmf2afd',
-                      'train',
-                      'track',
-                      'railroad',
-                      'beam',
-                      'wood',
-                      'chair',
-                      'orange',
-                      'design',
-                      'dof',
-                      'sky',
-                      'clouds',
-                      'abandoned',
-                      'broken',
-                      'lonelychair',
-                      'emptychair'],
-             'text': 'Lovely Lonely ChairFound in an abandoned Train Car.',
-             'title': 'Lonely chair'}
-}
+Key = 88
+{'filename': '88.jpg',
+ 'flickr_url': 'https://www.flickr.com/photos/81273124@N00/14734618908/',
+ 'image_url': 'https://farm4.staticflickr.com/3877/14734618908_182577aa1e.jpg',
+ 'tags': ['cameraobscura',
+          'abandonedbuilding',
+          'milwaukee',
+          'pinhole',
+          'pinholephotography',
+          'canonmarkiii',
+          'tiltshiftlens',
+          'longexposure',
+          'urbex',
+          'urbanexploring',
+          'brewcity',
+          'canon5dmarkii',
+          'canon5dmarkiii',
+          'diyphotography',
+          'diy'],
+ 'text': 'With in the 5th ward of Milwaukee, WI there has been a variety of '
+         'changes. Many apartments, condos, restaurants, and bars have been '
+         'added. The Courteen Seed Company building was created in 1913, and '
+         "has been abandoned since 1960's. In 2006, there were plans to "
+         'convert there warehouse to apartments/condos, yet minimal '
+         'maintenance has been done.',
+ 'title': 'Courteen Seed Company VS The 5th Ward'}
 ```
 
 ### Usage
