@@ -108,14 +108,14 @@ class Web(web.RequestHandler):
             merged_list = {}
             common_ids = []
             for (doc_id, score) in postings:
-                merged_list[doc_id] = (score, 'Image')
+                merged_list[doc_id] = [score, 'Image']
             for (doc_id, score) in postings_txt:
                 score *= TXT_MULT  # To get to same scale
                 if doc_id in merged_list:
                     merged_list[doc_id][0] += - score
                     merged_list[doc_id][1] = 'Both'
                 else:
-                    merged_list[doc_id] = (- score, 'Text')
+                    merged_list[doc_id] = [- score, 'Text']
 
             both = []
             text = []
