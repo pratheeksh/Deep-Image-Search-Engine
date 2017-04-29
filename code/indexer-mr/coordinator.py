@@ -30,6 +30,7 @@ list_lock = threading.Lock()
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 print(len(worker_servers))
+print(worker_servers)
 
 
 # assert(len(worker_servers) == inventory.WORKER_THREAD_COUNT)
