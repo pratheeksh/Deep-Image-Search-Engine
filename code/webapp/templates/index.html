@@ -56,7 +56,18 @@
             }
         }
     </script>
-
+<div class="container">
+         <div class="row" ng-if="errorText">
+                <div class="col-md-12 text-center">
+                    <p style="display: none;" id="error" class="status bg-danger"></p>
+                </div>
+            </div>
+            <div class="row" ng-if="delay">
+                <div class="col-md-12 text-center">
+                    <p style="display: none;" id = "delay" class="status bg-info"></p>
+                </div>
+            </div>
+</div>
 <div class="container">
   <div id="displayimage">
   </div>
