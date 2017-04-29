@@ -84,7 +84,7 @@ class ReduceHandler(RequestHandler):
         map_task_ids = self.get_argument('map_task_ids').split(',')
         job_path = self.get_argument('job_path')
         http_client = AsyncHTTPClient()
-        http_client.configure(None, defaults=dict(connect_timeout=2000, request_timeout=2000, max_clients=100000))
+        http_client.configure(None, defaults=dict(connect_timeout=2000000, request_timeout=80000000, max_clients=100000000))
         results_to_sort = []
         futures = []
         count = 0
@@ -122,7 +122,8 @@ class ReduceHandler(RequestHandler):
             #     target.write('\n')
 
             target.close()
-
+        else:
+            print(output, err)
         self.write(json.dumps({"status": "success"}))
 
 
