@@ -6,7 +6,7 @@ MIN_PORT = 10000
 HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT + 100
-NUM_INDEX_SERVERS = 10
+NUM_INDEX_SERVERS = 20
 NUM_TXT_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
 MAX_NUM_RESULTS = 30
