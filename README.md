@@ -12,6 +12,7 @@ Then run
 ```shell
 python -m code.webapp.start
 ```
+and navigate to the port that the frontend is listening on (this will be printed to standard out once everything has started up).
 
 ## Getting flickr data
 
