@@ -9,9 +9,12 @@ feats = []
 keys = []
 data = map(lambda x: x.strip().split('\t'), sys.stdin)
 for k, feat_vecs in data:
-    feat_vecs = np.array(json.loads(feat_vecs))
-    feats.append(feat_vecs)
-    keys.append(k)
+    try:
+        feat_vecs = np.array(json.loads(feat_vecs))
+        feats.append(feat_vecs)
+        keys.append(k)
+    except:
+        continue
 feats = np.array(feats)
 T = KDTree(np.array(feats))
 pickle.dump({" ".join(keys): T}, sys.stdout.buffer)

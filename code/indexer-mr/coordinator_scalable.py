@@ -34,7 +34,7 @@ class Job:
     @gen.coroutine
     def run_coroutine(self):
         http_client = httpclient.AsyncHTTPClient()
-        http_client.configure(None, defaults=dict(connect_timeout=2000, request_timeout=2000, max_clients=100000))
+        http_client.configure(None, defaults=dict(connect_timeout=2000, request_timeout=80000000, max_clients=100000000))
         map_task_ids = yield self._run_mapper(http_client)
         reduced = yield self._run_reducer(http_client, map_task_ids)
         raise gen.Return(reduced)
@@ -42,13 +42,20 @@ class Job:
     @gen.coroutine
     def _run_mapper(self, http_client):
         input_files = glob.glob(self._job_args['job_path'] + '/*.in')
-        params = [urllib.parse.urlencode(dict([('input_file', input_file)] +
-                                              list(self._job_args.items())))
-                  for input_file in input_files]
-        futures = [http_client.fetch('%s/map?%s' % (WORKERS[i % len(WORKERS)], p))
-                   for i, p in enumerate(params)]
-        raw_responses = yield futures
-        parsed_responses = [json.loads(r.body.decode()) for r in raw_responses]
+        cur_range = 0
+        parsed_responses = []
+        for i in range(len(input_files)):
+            params = [urllib.parse.urlencode(dict([('input_file', input_file)] +
+                                                  list(self._job_args.items())))
+                      for input_file in input_files[cur_range:min((cur_range + 50), len(input_files))]]
+            futures = [http_client.fetch('%s/map?%s' % (WORKERS[i % len(WORKERS)], p))
+                       for i, p in enumerate(params)]
+            raw_responses = yield futures
+            cur_range += 50
+
+            parsed_response = [json.loads(r.body.decode()) for r in raw_responses]
+            parsed_responses.extend(parsed_response)
+
         assert len([r for r in parsed_responses if r['status'] not in {'noinput', 'success'}]) == 0
         map_task_ids = [r['map_task_id'] for r in parsed_responses]
         raise gen.Return(map_task_ids)
