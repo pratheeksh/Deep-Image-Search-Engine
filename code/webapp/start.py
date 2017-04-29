@@ -6,6 +6,7 @@ import urllib
 from collections import defaultdict
 from io import BytesIO
 from itertools import chain
+import math
 
 import numpy as np
 import tornado
@@ -25,6 +26,7 @@ txt_index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.TXT_IN
 doc_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.DOC_SERVER_PORTS]
 NUM_RESULTS = inventory.MAX_NUM_RESULTS
 TXT_MULT = 20
+TO_DISPLAY = 10
 
 SETTINGS = {
     "debug": False,
@@ -58,12 +60,12 @@ class Web(web.RequestHandler):
     @gen.coroutine
     def get(self):
         q = self.get_argument('img', None)
-        qtxt = self.get_arguments('txt', True)
+        qtxt = self.get_arguments('txt', True)[0].split()
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
         print("Text  query is: {}".format(qtxt))
 
-        if q is None:
+        if q == 'http://':
             print("Empty image query")
             postings = None
         else:
@@ -86,8 +88,9 @@ class Web(web.RequestHandler):
         else:
             # Fetch postings from text index servers if txt query exists
             http2 = httpclient.AsyncHTTPClient()
+            params = {'q' : qtxt}
             responses_txt = yield [
-                http2.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'q': ','.join([str(x) for x in qtxt])})))
+                http2.fetch('%s/index?%s' % (server, urllib.parse.urlencode(params, True)))
                 for server in txt_index_servers]
             # Flatten postings and sort by score
             postings_txt = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses_txt]),
@@ -95,15 +98,15 @@ class Web(web.RequestHandler):
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
             print("Postings text search", postings_txt)
 
-        if postings is None or postings_txt is None:
+        if postings is None and postings_txt is None:
             print("Empty query")
             exit(1)
         elif postings is None:
             postings = postings_txt
-            labels = [','.join('Text' for i in postings)]
+            labels = ['Text'] * len(postings)
         elif postings_txt is None:
             pass
-            labels = [','.join('Image' for i in postings)]
+            labels = ['Image'] * len(postings)
         else:
             merged_list = {}
             common_ids = []
@@ -134,43 +137,39 @@ class Web(web.RequestHandler):
             ims = sorted(ims, key=lambda x: x[1])
 
             postings = []
-            label = []
-            k = 0
+            labels = []
             for i in both:
                 postings.append([i[0], i[1]])
-                label.append(i[2])
-                k += 1
-                if k > 4:
+                labels.append(i[2])
+                if len(postings) > 4:
                     break
-            k = 0
-            for i in ims:
+            ims_to_add = math.ceil((TO_DISPLAY - len(postings)) / 2.0)
+            print("Ims to add: {}".format(ims_to_add))
+            for k, i in enumerate(ims):
                 postings.append([i[0], i[1]])
-                label.append(i[2])
-                k += 1
-                if k > 4:
+                labels.append(i[2])
+                if k >= ims_to_add - 1:
                     break
-            k = 0
             for i in text:
                 postings.append([i[0], i[1]])
-                label.append(i[2])
-                k += 1
-                if k > 4:
+                labels.append(i[2])
+                if len(postings) >= TO_DISPLAY:
                     break
 
             print("Merged lists, long")
             print(postings)
-            print(label)
+            print(labels)
             print("both: {}".format(both))
             print("text: {}".format(text))
             print("ims: {}".format(ims))
 
-            if len(postings) > NUM_RESULTS:
-                postings = postings[:NUM_RESULTS]
-                label = label[:NUM_RESULTS]
+        if len(postings) > TO_DISPLAY:
+            postings = postings[:TO_DISPLAY]
+            labels = labels[:TO_DISPLAY]
 
         print("Merged lists")
         print(postings)
-        print(label)
+        print(labels)
 
         # Batch requests to doc servers
         server_to_doc_ids = defaultdict(list)
@@ -183,7 +182,7 @@ class Web(web.RequestHandler):
         
         for i, (doc_id, _) in enumerate(postings):
             doc_id_to_result_ix[doc_id] = i
-            l = label[i]
+            l = labels[i]
             server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append((doc_id, l))
         responses = yield self._get_doc_server_futures( server_to_doc_ids)
 

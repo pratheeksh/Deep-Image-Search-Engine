@@ -33,4 +33,4 @@ class Index(web.RequestHandler):
             key = int(key.split(".")[0])
             top_k_scores.append((key, scores[i]))
         results = sorted(top_k_scores)
-        self.finish(json.dumps({'postings': results[:20]}))
+        self.finish(json.dumps({'postings': results[:max(len(results), inventory.MAX_NUM_RESULTS)]}))

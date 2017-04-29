@@ -18,6 +18,7 @@
 <body>
 <form>
     <input type="text" id="imagename" value="" />
+    <input type="text" id="textsearch" value="" />
     <input type="button" id="btn" value="GO" />
 </form>
 
@@ -29,14 +30,26 @@
                 img = document.createElement('img');
 
             img.src = src;
-            document.body.appendChild(img);
+            img.id = 'uploadedimage';
+            img.width = 250;
+            img.height = 250;
+            var div = document.getElementById('displayimage');
+            div.innerHTML="";
+            console.log(img.src)
+            if (src) {
+              div.appendChild(img);
+            }
         }
     </script>
+
+<div id="displayimage">
+
+</div>
 
 
 <div class="row">
  
-  <div class="col-md-7">
+  <!-- <div class="col-md-7">
     <h2>Select an Image</h2>
     <br>
     <div class="row">
@@ -49,9 +62,9 @@
         <p><img src="http://static.pyimagesearch.com.s3-us-west-2.amazonaws.com/vacation-photos/queries/123600.png" style="height: 250px;" class="img"></p>
       </div>
     </div>
-  </div>
+  </div> -->
  
-  <div class="col-md-3 col-md-offset-1">
+  <div class="col-md-12">
     <h2>Results</h2>
     <br>
     <table class="table" id="results-table">
