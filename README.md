@@ -16,12 +16,12 @@ This is a reverse image and text search engine. User can search a repository of 
 This assumes that all of the data has been prepared. See the section **How to build the full dataset** to prepare the data.
 
 How to point the search engine to the correct dataset
-Set up your static/images to point to the location of the images on the disk
+Set up your static/images to point to the location of the images on the disk. If there already exists an images directory, clear it.
 ```shell
 cd code/webapp/static/
 rm -rf images
 ```
-For example, to connect it to the biggertest dataset,
+With `cd code/webapp/static/` as the cws, run below command to connect it to the biggertest dataset. (Or whichever image source you may choose)
 ```
 ln -s ../../../data/biggertest/images/ images
 ```
