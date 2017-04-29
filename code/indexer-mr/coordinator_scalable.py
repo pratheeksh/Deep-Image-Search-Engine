@@ -4,9 +4,10 @@ Source: Matt Doherty, sea assignments, assignment 2, coordinator.py
 import json, urllib.request, urllib.parse, glob, argparse, os.path
 from tornado.ioloop import IOLoop
 from tornado import web, gen, httpclient
-import inventory
+from code import inventory
 
-WORKERS = inventory.servers['worker']
+# WORKERS = inventory.servers['worker']
+WORKERS = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 class Runner(web.RequestHandler):
     def head(self):
