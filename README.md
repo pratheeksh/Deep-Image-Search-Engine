@@ -138,7 +138,8 @@ python -m code.indexer-mr.workers
 Run coordinator to create kd-trees and create feature index shards.
 
 ```shell
- python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path PATH_TO_FEAT_VECS --num_reducers 10
+ python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  
+ --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path PATH_TO_FEAT_VECS --num_reducers 10
  ```
 5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
