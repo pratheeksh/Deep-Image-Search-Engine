@@ -72,6 +72,7 @@ $(function() {
     // empty/hide results
     $("#results").empty();
     $("#results-table").hide();
+    $("#results-heading").hide();
     $("#error").hide();
 
     // $("#uploadedimage").empty()
@@ -107,11 +108,13 @@ $(function() {
         var data = obj.results
         console.log(data)
         // show table
+        $("#results-heading").show();
         $("#results-table").show();
         // loop through results, append to dom
+        // $("#results").append('<h2 id="results-heading">Results</h2>')
         for (i = 0; i < data.length; i++) {
-        $("#results").append('<tr><td class="col-md-4"><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
-    '" class="result-img"></a></td><td class="col-md-2">'+data[i]['title']+'</td><td class="col-md-4">'+data[i]['text']+'</td><td class="col-md-2">'+data[i]['source']+'</td></tr>')
+        $("#results").append('<tr><td class="col-md-3"><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
+    '" width=200 height=200></a></td><td class="col-md-3">'+data[i]['title']+'</td><td class="col-md-4">'+data[i]['text']+'</td><td class="col-md-4">'+data[i]['source']+'</td></tr>')
        };
 
 

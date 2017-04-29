@@ -10,17 +10,32 @@
   <title>Image Search</title>
 
   <!-- stylesheets -->
-  <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.2.0/yeti/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="static/main.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- <link href="static/main.css" rel="stylesheet"> -->
 
 </head>
 
 <body>
-<form>
+<!-- <form>
     <input type="text" id="imagename" value="" />
     <input type="text" id="textsearch" value="" />
     <input type="button" id="btn" value="GO" />
-</form>
+</form> -->
+<div class="container">
+  <form>
+    <div class="form-group">
+      <label for="imagename">Image URL:</label>
+      <input type="text" class="form-control" id="imagename">
+    </div>
+    <div class="form-group">
+      <label for="textsearch">Text search:</label>
+      <input type="text" class="form-control" id="textsearch">
+    </div>
+    <div class="form-group">
+      <button type="button" class="btn btn-primary" id="btn">Search</button>
+    </div>
+  </form>
+</div>
 
  <script type="text/javascript">
         document.getElementById('btn').onclick = function() {
@@ -31,8 +46,8 @@
 
             img.src = src;
             img.id = 'uploadedimage';
-            img.width = 250;
-            img.height = 250;
+            img.width = 200;
+            img.height = 200;
             var div = document.getElementById('displayimage');
             div.innerHTML="";
             console.log(img.src)
@@ -42,9 +57,9 @@
         }
     </script>
 
-<div id="displayimage">
-
-</div>
+<div class="container">
+  <div id="displayimage">
+  </div>
 
 
 <div class="row">
@@ -65,7 +80,7 @@
   </div> -->
  
   <div class="col-md-12">
-    <h2>Results</h2>
+    <h2 style="display: none;" id="results-heading">Results</h2>
     <br>
     <table class="table" id="results-table">
       <thead>
@@ -83,7 +98,8 @@
   </div>
  
 </div>
- 
+ </div>
+
 <br>
 
  <script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
