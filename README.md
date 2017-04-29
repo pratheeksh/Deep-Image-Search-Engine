@@ -129,7 +129,7 @@ Note: To convert from matrix number and row index to image number:
 
 image number = matrix_number * MAX_IMS_PER_MATRIX + row index + 1
 
-4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder
+4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
 Start workers to run the map reduce job.
 
 ```shell
@@ -138,7 +138,7 @@ python -m code.indexer-mr.workers
 Run coordinator to create kd-trees and create feature index shards.
 
 ```shell
- python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path data/biggertest/features/ --num_reducers 10
+ python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path PATH_TO_FEAT_VECS --num_reducers 10
  ```
 5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
