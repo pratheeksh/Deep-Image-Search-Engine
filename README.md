@@ -8,6 +8,8 @@ This is a reverse image and text search engine. User can search a repository of 
 - Pytorch
 - Numpy
 - Scipy
+- requests
+- IPython
 - NLTK
 - NLTK stopwords corpus
 
