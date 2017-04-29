@@ -21,12 +21,12 @@ Set up your static/images to point to the location of the images on the disk. If
 cd code/webapp/static/
 rm -rf images
 ```
-With `cd code/webapp/static/` as the cws, run below command to connect it to the biggertest dataset. (Or whichever image source you may choose)
+With `code/webapp/static/` as the cws, run below command to connect it to the biggertest dataset. (Or whichever image source you may choose)
 ```
 ln -s ../../../data/biggertest/images/ images
 ```
 
-Then run
+Then from the root directory, run
 ```shell
 python -m code.webapp.start
 ```
