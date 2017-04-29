@@ -165,3 +165,17 @@ python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
 ```shell
 python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 ```
+## Issues we ran into
+1. https://github.com/tornadoweb/tornado/issues/1753
+2. javascript file upload
+3. Pytorch set up on linserv - core dumped due to gcc version
+4. Tree recursion depth pickle error due to the size of kd tree
+5. Some images don't go through PIL's image library, causing an OSError
+6. Edge case normalization is a bit buggy
+
+## Successes yay!
+1. Feature extraction and similarity worked out very well, alexnet extracts features very fast as well.
+2. KD trees give very good results, and qulity of results obtained in log n time are comparable to linear time search
+3. Text + image search in any combination works very well, and fast.
+4. UI looks nice and is user friendly.
+6. We were able to load from disk using simlinks very seamlessly.
