@@ -112,7 +112,7 @@ class ReduceHandler(RequestHandler):
         message = sio.getvalue().encode('utf-8')
         output, err = p.communicate(message)
         rc = p.returncode
-
+        print("Return code: {}".format(rc))
         if rc == 0:
             target = open(job_path + "/" + reducer_ix + ".out", 'wb')
             pickle.dump(pickle.loads(output), target)

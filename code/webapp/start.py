@@ -24,8 +24,8 @@ index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERV
 txt_index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.TXT_INDEX_SERVER_PORTS]
 doc_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.DOC_SERVER_PORTS]
 NUM_RESULTS = inventory.MAX_NUM_RESULTS
-TXT_MULT = 20
-TO_DISPLAY = 10
+TXT_MULT = inventory.TXT_MULT
+TO_DISPLAY = inventory.TO_DISPLAY
 
 SETTINGS = {
     "debug": False,
