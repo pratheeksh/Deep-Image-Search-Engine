@@ -1,5 +1,17 @@
 # SEA-Project
-SEA project repo
+
+This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
+
+## To run the search engine
+
+This assumes that all of the data has been prepared. See the section **How to build the full dataset** to prepare the data.
+
+TODO: How to point the search engine to the correct dataset
+
+Run
+```shell
+python -m code.webapp.start
+```
 
 ## Getting flickr data
 
@@ -84,12 +96,12 @@ See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy 
 * Index shards for storing the text indices
 * Trees for storing the image features
 
-### How to build the full test dataset
+### How to build the full dataset
 
 1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
 2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
 ```shell
-python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
+python -m util.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 3. Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
@@ -100,35 +112,26 @@ To list the keys in each dict
 ```shell
 python -m code.feature-extractor.check_key_conversion
 ```
+Note: To convert from matrix number and row index to image number:
+
+image number = matrix_number * MAX_IMS_PER_MATRIX + row index + 1
+
 4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder
 Start workers to run the map reduce job.
 
 ```shell
 python -m code.indexer-mr.workers
 ```
-Run coordinator to create kd-trees.
+Run coordinator to create kd-trees and create feature index shards.
 
 ```shell
  python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path data/biggertest/features/ --num_reducers 10
  ```
-
-5. Create feature index shards from KD trees
-```shell
-COMMAND
-```
-6. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
+5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
 python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
 ```
-7. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
+6. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
 ```shell
 python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 ```
-
-## To run the search engine
-
-TO DO
-
-Note: To convert from matrix number and row index to image number:
-
-image number = matrix_number * MAX_IMS_PER_MATRIX + row index + 1
