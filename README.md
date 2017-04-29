@@ -2,6 +2,15 @@
 
 This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
 
+## Dependencies
+
+- Tornado
+- Pytorch
+- Numpy
+- Scipy
+- NLTK
+- NLTK stopwords corpus
+
 ## To run the search engine
 
 This assumes that all of the data has been prepared. See the section **How to build the full dataset** to prepare the data.
