@@ -45,13 +45,17 @@ class Job:
         params = [urllib.parse.urlencode(dict([('input_file', input_file)] +
                                               list(self._job_args.items())))
                   for input_file in input_files]
-        futures = [http_client.fetch('http://%s/map?%s' % (WORKERS[i % len(WORKERS)], p))
+        futures = [http_client.fetch('%s/map?%s' % (WORKERS[i % len(WORKERS)], p))
                    for i, p in enumerate(params)]
         raw_responses = yield futures
         parsed_responses = [json.loads(r.body.decode()) for r in raw_responses]
         assert len([r for r in parsed_responses if r['status'] not in {'noinput', 'success'}]) == 0
         map_task_ids = [r['map_task_id'] for r in parsed_responses]
         raise gen.Return(map_task_ids)
+
+    def get_mapper_url(server, file_name):
+        return server + "/map?mapper_path=" + args.mapper_path.strip() + "&input_file=" + args.job_path.strip() + "/" + file_name + \
+               "&num_reducers=" + str(args.num_reducers).strip()
 
     @gen.coroutine
     def _run_reducer(self, http_client, map_task_ids):
@@ -60,7 +64,7 @@ class Job:
                                                ('map_task_ids', ','.join(map_task_ids))] +
                                               list(self._job_args.items())))
                   for i in range(num_reducers)]
-        futures = [http_client.fetch('http://%s/reduce?%s' % (WORKERS[i % len(WORKERS)], p))
+        futures = [http_client.fetch('%s/reduce?%s' % (WORKERS[i % len(WORKERS)], p))
                    for i, p in enumerate(params)]
         raw_responses = yield futures
         parsed_responses = [json.loads(r.body.decode()) for r in raw_responses]
