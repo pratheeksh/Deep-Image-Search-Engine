@@ -100,7 +100,7 @@ See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy 
 * Index shards for storing the text indices
 * Trees for storing the image features
 
-### How to build the full dataset
+## How to build the full dataset
 
 1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
 2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
