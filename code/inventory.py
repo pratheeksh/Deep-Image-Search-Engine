@@ -1,23 +1,26 @@
 import getpass
 import hashlib
 
-MAX_PORT = 59123
-MIN_PORT = 20000
+MAX_PORT = 49123
+MIN_PORT = 10000
 HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT + 100
-NUM_INDEX_SERVERS = 10
+NUM_INDEX_SERVERS = 20
 NUM_TXT_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
 MAX_NUM_RESULTS = 30
 INDEX_SERVER_PORTS = []
 TXT_INDEX_SERVER_PORTS = []
 DOC_SERVER_PORTS = []
+TXT_MULT = 20
+TO_DISPLAY = 10
 TITLE_BONUS = 10.0
 WORKER_THREAD_COUNT = 10
 WORKER_PORTS = []
 DOCS_STORE = "data/biggertest/docs/docshard_%d.p"
 TREE_STORE = "data/biggertest/features"
+TEXT_STORE = "data/biggertest/indices"
 IM_RESIZE_DIMS = (227, 227)
 NUM_KD_TREES = 3
 WEBAPP_PATH = "static/"

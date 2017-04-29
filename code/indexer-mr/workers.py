@@ -84,7 +84,7 @@ class ReduceHandler(RequestHandler):
         map_task_ids = self.get_argument('map_task_ids').split(',')
         job_path = self.get_argument('job_path')
         http_client = AsyncHTTPClient()
-        http_client.configure(None, defaults=dict(connect_timeout=200, request_timeout=300, max_clients=10000))
+        http_client.configure(None, defaults=dict(connect_timeout=2000, request_timeout=2000, max_clients=100000))
         results_to_sort = []
         futures = []
         count = 0
@@ -112,7 +112,7 @@ class ReduceHandler(RequestHandler):
         message = sio.getvalue().encode('utf-8')
         output, err = p.communicate(message)
         rc = p.returncode
-
+        print("Return code: {}".format(rc))
         if rc == 0:
             target = open(job_path + "/" + reducer_ix + ".out", 'wb')
             pickle.dump(pickle.loads(output), target)
