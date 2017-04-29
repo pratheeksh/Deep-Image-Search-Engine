@@ -16,11 +16,11 @@ class IndexHolder:
         print("Finished loading index for server {}".format(self.index_id))
  
     def load_index(self, index_id):
-        name = inventory.TEXT_STORE + "/index_txt_" + str(index_id) + ".p"
+        name = TEXT_STORE + "/index_txt_" + str(index_id) + ".p"
         return pickle.load(open(name, 'rb'))
 
     def load_idf_idx(self):
-        name = inventory.TEXT_STORE + "/txt_idf_index.p"
+        name = TEXT_STORE + "/txt_idf_index.p"
         return pickle.load(open(name, 'rb'))
 
 class IndexServer(tornado.web.RequestHandler):

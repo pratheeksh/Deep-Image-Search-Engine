@@ -1,8 +1,8 @@
 import getpass
 import hashlib
 
-MAX_PORT = 59123
-MIN_PORT = 20000
+MAX_PORT = 49123
+MIN_PORT = 10000
 HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT + 100
