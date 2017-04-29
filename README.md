@@ -59,7 +59,7 @@ python flickr_scraper.py
 
 A selection of examples from each pickle file are printed to the screen to allow for manual checking that keys correspond to the correct image files.
 
-### Converting images to numpy
+## Converting images to numpy
 
 Converts folder of images to numpy arrays of a fixed size. Each image is resized. Images are assumed to be in colour. The occasional image is grayscale, in which case the image is padded with zeros to make the dimensions compatible. 
 
