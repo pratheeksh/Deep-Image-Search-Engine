@@ -113,8 +113,8 @@ $(function() {
         // loop through results, append to dom
         // $("#results").append('<h2 id="results-heading">Results</h2>')
         for (i = 0; i < data.length; i++) {
-        $("#results").append('<tr><td class="col-md-3"><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
-    '" width=200 height=200></a></td><td class="col-md-3">'+data[i]['title']+'</td><td class="col-md-4">'+data[i]['text']+'</td><td class="col-md-4">'+data[i]['source']+'</td></tr>')
+        $("#results").append('<tr><td class="col-md-3"><a href="'+data[i]["flickr"]+'"><img src="/static/images/'+data[i]["doc_id"]+".jpg"+
+    '" width=200 height=200></a></td><td class="col-md-2">'+data[i]['title']+'</td><td class="col-md-4">'+data[i]['text']+'</td><td class="col-md-2">'+data[i]['tags']+'</td><td class="col-md-1">'+data[i]['source']+'</td></tr>')
        };
 
 
