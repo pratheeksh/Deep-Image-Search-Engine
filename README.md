@@ -8,7 +8,7 @@ This assumes that all of the data has been prepared. See the section **How to bu
 
 TODO: How to point the search engine to the correct dataset
 
-Run
+Then run
 ```shell
 python -m code.webapp.start
 ```
@@ -81,8 +81,11 @@ Finally, to check the image conversion worked correctly, see check_im_to_matrix_
 
 ## Feature extraction
 
-Experiments:
-- AlexNet is used as a feature extractor to extract a feature vectore of dimension 4096 from each of the images. The results are stored in a feature dictionary `feat_dict.p` whose keys are the image numbers (can also be thought of as doc ids)
+A convolutional neural network (AlexNet) is used as a feature extractor to extract a feature vectore of dimension 4096 from each of the images. The network is pretrained to classifiy ImageNet features and is used out of the box to this application. The outputs of the second to last layer are used as the image features. The results are stored in a feature dictionary `feat_dict.p` whose keys are the image numbers (can also be thought of as doc ids)
+
+## Searching images
+
+KD trees are used to store and efficiently search for similar feature vectors. When an image is loaded into the search engine, features are extracted from the image using AlexNet, then each KD tree is searched for a set of similar feature vectors.
 
 ## Test data
 
