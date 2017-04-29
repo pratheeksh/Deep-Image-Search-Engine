@@ -1,19 +1,18 @@
 import json
 import logging
+import math
 import os
 import pickle
 import urllib
 from collections import defaultdict
-from io import BytesIO
 from itertools import chain
-import math
 
 import numpy as np
+import requests
 import tornado
 from PIL import Image
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
-import requests
 
 from code import inventory
 from util.image_processing_fns import resizeImageAlt, convertImageToArray
@@ -45,11 +44,15 @@ class Web(web.RequestHandler):
 
     @gen.coroutine
     def get_feature_vector(self, image_url):
-        #http = httpclient.AsyncHTTPClient()
-        #result = yield http.fetch(image_url)
-        #im2 = Image.open(BytesIO(result.body))
-        im2 = Image.open(requests.get(image_url, stream=True).raw)
-
+        # http = httpclient.AsyncHTTPClient()
+        # result = yield http.fetch(image_url)
+        # im2 = Image.open(BytesIO(result.body))
+        try:
+            im2 = Image.open(requests.get(image_url, stream=True).raw)
+        except OSError:
+            ##print something on the webpage
+            print("error, cant process image")
+            return
         im2 = resizeImageAlt(im2, inventory.IM_RESIZE_DIMS)
         im2 = convertImageToArray(im2)
         im2_np = np.transpose(np.array(im2), (2, 0, 1))
@@ -70,11 +73,12 @@ class Web(web.RequestHandler):
             postings = None
         else:
             feature_vector = yield self.get_feature_vector(str(q))
-            
+
             # Fetch postings from image index servers
             http = httpclient.AsyncHTTPClient()
             responses = yield [
-                http.fetch('%s/index?%s' % (server, urllib.parse.urlencode({'featvec': json.dumps(str(list(feature_vector)))})))
+                http.fetch('%s/index?%s' % (
+                server, urllib.parse.urlencode({'featvec': json.dumps(str(list(feature_vector)))})))
                 for server in index_servers]
             # Flatten postings and sort by score
             postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
@@ -88,13 +92,13 @@ class Web(web.RequestHandler):
         else:
             # Fetch postings from text index servers if txt query exists
             http2 = httpclient.AsyncHTTPClient()
-            params = {'q' : qtxt}
+            params = {'q': qtxt}
             responses_txt = yield [
                 http2.fetch('%s/index?%s' % (server, urllib.parse.urlencode(params, True)))
                 for server in txt_index_servers]
             # Flatten postings and sort by score
             postings_txt = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses_txt]),
-                              key=lambda x: -x[1])[:NUM_RESULTS]
+                                  key=lambda x: -x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
             print("Postings text search", postings_txt)
 
@@ -179,12 +183,12 @@ class Web(web.RequestHandler):
         #     doc_id_to_result_ix[doc_id] = i
         #     server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append(doc_id)
         # responses = yield self._get_doc_server_futures( server_to_doc_ids)
-        
+
         for i, (doc_id, _) in enumerate(postings):
             doc_id_to_result_ix[doc_id] = i
             l = labels[i]
             server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append((doc_id, l))
-        responses = yield self._get_doc_server_futures( server_to_doc_ids)
+        responses = yield self._get_doc_server_futures(server_to_doc_ids)
 
         # Parse outputs and insert into sorted result array
         result_list = [None] * len(postings)
@@ -199,8 +203,8 @@ class Web(web.RequestHandler):
         futures = []
         for server, doc_ids in server_to_doc_ids.items():
             query_string = urllib.parse.urlencode({'ids': ','.join([str(x[0]) for x in doc_ids]),
-                                                                          'src': ','.join([x[1] for x in doc_ids]),
-                                                                        })
+                                                   'src': ','.join([x[1] for x in doc_ids]),
+                                                   })
             print(query_string)
             futures.append(http.fetch('%s/doc?%s' % (server, query_string)))
         return futures
@@ -218,13 +222,13 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
 
 
 def main():
-    num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_TXT_INDEX_SERVERS + inventory.NUM_DOC_SERVERS+ 1
+    num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_TXT_INDEX_SERVERS + inventory.NUM_DOC_SERVERS + 1
     try:
         model = pickle.load(open('data/model.p', 'rb'))
     except FileNotFoundError:
         model = load_model()
         pickle.dump(model, open('data/model.p', 'wb'))
-    log.info('Model loaded %s',  type(model))
+    log.info('Model loaded %s', type(model))
     task_id = process.fork_processes(num_procs, max_restarts=5)
 
     if task_id == 0:
@@ -246,11 +250,11 @@ def main():
             port = inventory.TXT_INDEX_SERVER_PORTS[shard_ix]
             index_holder = text_index_servers.IndexHolder(shard_ix)
             app = httpserver.HTTPServer(
-                                                web.Application([
-                                                (r"/index", text_index_servers.IndexServer, dict(index_holder=index_holder, 
-                                                                              port=port,
-                                                                              max_results=inventory.MAX_NUM_RESULTS)),
-                                                 ]))
+                web.Application([
+                    (r"/index", text_index_servers.IndexServer, dict(index_holder=index_holder,
+                                                                     port=port,
+                                                                     max_results=inventory.MAX_NUM_RESULTS)),
+                ]))
             log.info('Index txt shard %d listening on %d', shard_ix, port)
         else:
             shard_ix = task_id - inventory.NUM_INDEX_SERVERS - inventory.NUM_TXT_INDEX_SERVERS - 1
