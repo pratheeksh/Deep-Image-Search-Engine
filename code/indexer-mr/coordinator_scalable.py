@@ -7,6 +7,7 @@ from tornado import web, gen, httpclient
 from code import inventory
 
 # WORKERS = inventory.servers['worker']
+inventory.init_ports()
 WORKERS = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 class Runner(web.RequestHandler):
