@@ -23,6 +23,12 @@
 </form> -->
 <div class="container">
   <form>
+
+    <label class="btn btn-default btn-file"  id="file-upload">
+    Browse <input type="file" hidden id="file-name">
+</label>
+
+
     <div class="form-group">
       <label for="imagename">Image URL:</label>
       <input type="text" class="form-control" id="imagename">
@@ -55,6 +61,51 @@
               div.appendChild(img);
             }
         }
+
+        document.getElementById('file-name').onchange = function(){
+         readURL(this);
+        }
+        function readURL(input) {
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+             src =e.target.result
+             img = document.createElement('img');
+             img.id = 'uploadedimage';
+             img.src = src;
+             console.log(src)
+             console.log(src.data)
+             img.id = 'uploadedimage';
+             img.width = 200;
+             img.height = 200;
+             var div = document.getElementById('displayimage');
+             div.innerHTML="";
+             div.appendChild(img);
+                console.log('image loaded')
+                uploadToServer(src)
+             }
+
+            reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function uploadToServer(src){
+             $.ajax({
+              type: "GET",
+              url: "/upload",
+              data : { img : src },
+              // handle success
+              success: function(jsonResponse) {
+              },
+              // handle error
+              error: function(error) {
+                console.log(error);
+              }
+            });
+        }
+
+
     </script>
 <div class="container">
          <div class="row" ng-if="errorText">
