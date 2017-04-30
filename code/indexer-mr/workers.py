@@ -33,12 +33,6 @@ socket.setdefaulttimeout(timeout)
 
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
-def thread_helper(urls):
-    pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
-    results = pool.map(urllib.request.urlopen, urls)
-    pool.close()
-    pool.join()
-    return results
 
 class MapHandler(RequestHandler):
     @gen.coroutine
@@ -117,7 +111,7 @@ class ReduceHandler(RequestHandler):
 
             # res = yield http_client.fetch(url)
 
-        responses = thread_helper(urls)
+        responses =  yield self.thread_helper(urls)
         print("RESPONSES RECEIVED")
         for res in responses:
             # result = json.loads(res.body.decode('utf-8'))
@@ -150,6 +144,14 @@ class ReduceHandler(RequestHandler):
         else:
             print(output, err)
         self.write(json.dumps({"status": "success"}))
+
+    @gen.coroutine
+    def thread_helper(self, urls):
+        pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
+        results = pool.map(urllib.request.urlopen, urls)
+        pool.close()
+        pool.join()
+        return results
 
 
 def create_workers():
