@@ -2,6 +2,8 @@
 
 This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
 
+![ImageSearch](ImageSearch.png)
+
 ## Dependencies
 - Python 3
 - Tornado
