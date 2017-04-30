@@ -43,6 +43,7 @@ def thread_helper(urls):
 class MapHandler(RequestHandler):
     @gen.coroutine
     def get(self):
+        print("INSIDE MAP HANDLER")
         mapper_path = self.get_argument('mapper_path')
         input_file = self.get_argument('input_file')
         num_reducers = int(self.get_argument('num_reducers'))
@@ -50,6 +51,7 @@ class MapHandler(RequestHandler):
         output, err = p.communicate(open(input_file, "rb").read())
         rc = p.returncode
         if rc == 0:
+            print("RETURN CODE ZERO, PROCESSING")
             map_task_id = str(uuid.uuid4())
             global_map_dict[map_task_id] = {}
             for reducer_idx in range(num_reducers):
@@ -104,6 +106,7 @@ class ReduceHandler(RequestHandler):
         urls =[]
         responses = []
         count = 0
+        print("INSIDE REDUCE HANDLER")
         for i, map_task_id in enumerate(map_task_ids):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
@@ -115,6 +118,7 @@ class ReduceHandler(RequestHandler):
             # res = yield http_client.fetch(url)
 
         responses = thread_helper(urls)
+        print("RESPONSES RECEIVED")
         for res in responses:
             # result = json.loads(res.body.decode('utf-8'))
             html = res.read()
