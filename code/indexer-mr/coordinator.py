@@ -3,7 +3,9 @@ import json
 import os
 import threading
 import time
+import socket
 import urllib.request
+from functools import partial
 from multiprocessing.pool import ThreadPool
 
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -27,6 +29,9 @@ start = time.time()
 map_task_ids = []
 list_lock = threading.Lock()
 
+# timeout in seconds
+timeout = 10000
+socket.setdefaulttimeout(timeout)
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 print(len(worker_servers))
@@ -36,8 +41,8 @@ print(worker_servers)
 # assert(len(worker_servers) == inventory.WORKER_THREAD_COUNT)
 def thread_helper(is_mapper, urls):
     pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
-    urltimeout = [(url, timeout=10000) for url in urls]
-    results = pool.map(urllib.request.urlopen, urltimeout)
+    # urltimeout = [(url, 'timeout'=10000) for url in urls]
+    results = pool.map(urllib.request.urlopen, urls)
 
     pool.close()
     pool.join()
