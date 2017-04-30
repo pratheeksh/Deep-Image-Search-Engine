@@ -154,27 +154,27 @@ class ReduceHandler(RequestHandler):
         return results
 
 
-def create_workers():
+def create_workers(port):
     app = Application(handlers=[
         (r"/map", MapHandler),
         (r"/retrieve_map_output", RetrieveMapOutputHandler),
         (r"/reduce", ReduceHandler)
     ])
 
-    return app
+    app.listen(port)
 
 
 def start_workers():
-    num_procs = inventory.WORKER_THREAD_COUNT
-    task_id = process.fork_processes(num_procs, max_restarts=0)
-    port = inventory.WORKER_PORTS[task_id]
-    app = httpserver.HTTPServer(create_workers())
-    log.info("Worker %s is listening on %s", task_id, inventory.HOSTNAME + ":" + str(port))
-
-    try:
-        app.add_sockets(netutil.bind_sockets(port))
-    except OSError:
-        print(port, " crying")
+    # num_procs = inventory.WORKER_THREAD_COUNT
+    # task_id = process.fork_processes(num_procs, max_restarts=0)
+    port = inventory.WORKER_PORTS
+    # app = httpserver.HTTPServer(create_workers())
+    log.info("Worker is listening on %s", inventory.HOSTNAME + ":" + str(port))
+    for p in port:
+        try:
+            create_workers(p)
+        except OSError:
+            print(p, " crying")
 
 
 if __name__ == '__main__':
