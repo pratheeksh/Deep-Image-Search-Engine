@@ -13,12 +13,11 @@ import tornado
 from PIL import Image
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
-
+from functools import lru_cache
 from code import inventory
 from util.image_processing_fns import resizeImageAlt, convertImageToArray
 from util.utils import convert_array_to_Variable, load_model
 from . import index, doc, text_index_servers
-
 inventory.init_ports()
 index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERVER_PORTS]
 txt_index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.TXT_INDEX_SERVER_PORTS]
@@ -41,7 +40,6 @@ class Web(web.RequestHandler):
 
     def head(self):
         self.finish()
-
     @gen.coroutine
     def get_feature_vector(self, image_url):
         # http = httpclient.AsyncHTTPClient()
@@ -59,7 +57,7 @@ class Web(web.RequestHandler):
         im2 = convert_array_to_Variable(np.array([im2_np]))
         feature_vector = self.model(im2)
         return feature_vector.data.numpy().reshape((4096,))
-
+    @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
         q = self.get_argument('img', None)

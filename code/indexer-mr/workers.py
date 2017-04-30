@@ -11,7 +11,7 @@ import urllib.request
 import uuid
 from multiprocessing.pool import ThreadPool
 from subprocess import Popen, PIPE
-
+import requests
 from tornado import gen, ioloop
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import RequestHandler, Application
@@ -39,7 +39,7 @@ worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PO
 class MapHandler(RequestHandler):
     @gen.coroutine
     def get(self):
-        print("INSIDE MAP HANDLER")
+        #print("INSIDE MAP HANDLER")
         mapper_path = self.get_argument('mapper_path')
         input_file = self.get_argument('input_file')
         num_reducers = int(self.get_argument('num_reducers'))
@@ -47,7 +47,7 @@ class MapHandler(RequestHandler):
         output, err = p.communicate(open(input_file, "rb").read())
         rc = p.returncode
         if rc == 0:
-            print("RETURN CODE ZERO, PROCESSING")
+            #print("RETURN CODE ZERO, PROCESSING")
             map_task_id = str(uuid.uuid4())
             global_map_dict[map_task_id] = {}
             for reducer_idx in range(num_reducers):
@@ -107,7 +107,7 @@ class ReduceHandler(RequestHandler):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
             url = server + "/retrieve_map_output?reducer_ix=" + str(reducer_ix) + "&map_task_id=" + map_task_id
-            responses.append(urllib.request.urlopen(url))
+            responses.append(requests.get(url, timeout=1000))
             # futures.append(http_client.fetch(url))
             # responses.append(urllib.request.urlopen(url, timeout=100000))
 
