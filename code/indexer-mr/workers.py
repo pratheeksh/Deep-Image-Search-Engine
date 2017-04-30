@@ -5,7 +5,7 @@ import json
 import logging
 import os
 import pickle
-# import sys
+import sys
 import uuid
 from subprocess import Popen, PIPE
 
@@ -15,6 +15,7 @@ from tornado.web import RequestHandler, Application
 
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from code import inventory
+sys.setrecursionlimit(10000)
 
 inventory.init_ports()
 root = os.path.dirname(__file__)
