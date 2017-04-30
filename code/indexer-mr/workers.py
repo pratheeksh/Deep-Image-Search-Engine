@@ -7,6 +7,7 @@ import os
 import pickle
 import sys
 import uuid
+import urllib.request
 from subprocess import Popen, PIPE
 
 from tornado import gen, process, netutil, ioloop, httpserver
@@ -88,16 +89,18 @@ class ReduceHandler(RequestHandler):
         http_client.configure(None, defaults=dict(connect_timeout=2000000, request_timeout=80000000, max_clients=100000000))
         results_to_sort = []
         futures = []
+        responses = []
         count = 0
         for i, map_task_id in enumerate(map_task_ids):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
             url = server + "/retrieve_map_output?reducer_ix=" + str(reducer_ix) + "&map_task_id=" + map_task_id
-            futures.append(http_client.fetch(url))
+            # futures.append(http_client.fetch(url))
+            responses.append(urllib.request.urlopen(url, timeout=100000))
 
             # res = yield http_client.fetch(url)
 
-        responses = yield futures
+        # responses = yield futures
         for res in responses:
             result = json.loads(res.body.decode('utf-8'))
             if len(result) > 0:
