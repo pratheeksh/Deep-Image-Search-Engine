@@ -8,7 +8,9 @@ import pickle
 import sys
 import uuid
 import urllib.request
+import socket
 from subprocess import Popen, PIPE
+from multiprocessing.pool import ThreadPool
 
 from tornado import gen, process, netutil, ioloop, httpserver
 from tornado.httpclient import AsyncHTTPClient
@@ -25,8 +27,18 @@ log = logging.getLogger(__name__)
 
 global_map_dict = {}
 
+# timeout in seconds
+timeout = 10000
+socket.setdefaulttimeout(timeout)
+
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
+def thread_helper(urls):
+    pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
+    results = pool.map(urllib.request.urlopen, urls)
+    pool.close()
+    pool.join()
+    return results
 
 class MapHandler(RequestHandler):
     @gen.coroutine
@@ -89,20 +101,25 @@ class ReduceHandler(RequestHandler):
         http_client.configure(None, defaults=dict(connect_timeout=2000000, request_timeout=80000000, max_clients=100000000))
         results_to_sort = []
         futures = []
-        # responses = []
+        urls =[]
+        responses = []
         count = 0
         for i, map_task_id in enumerate(map_task_ids):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
             url = server + "/retrieve_map_output?reducer_ix=" + str(reducer_ix) + "&map_task_id=" + map_task_id
-            futures.append(http_client.fetch(url))
+            urls.append(url)
+            # futures.append(http_client.fetch(url))
             # responses.append(urllib.request.urlopen(url, timeout=100000))
 
             # res = yield http_client.fetch(url)
 
-        responses = yield futures
+        responses = thread_helper(urls)
         for res in responses:
-            result = json.loads(res.body.decode('utf-8'))
+            # result = json.loads(res.body.decode('utf-8'))
+            html = res.read()
+            encoding = res.info().get_content_charset('utf-8')
+            result = json.loads(html.decode(encoding))
             if len(result) > 0:
                 result = [tuple(l) for l in result]
                 results_to_sort.append(result)
