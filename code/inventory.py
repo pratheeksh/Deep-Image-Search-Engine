@@ -7,7 +7,7 @@ HOSTNAME = "http://localhost"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT + 100
 
-NUM_INDEX_SERVERS = 10
+NUM_INDEX_SERVERS = 20
 NUM_TXT_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
 MAX_NUM_RESULTS = 30
@@ -23,7 +23,7 @@ DOCS_STORE = "data/biggertest/docs/docshard_%d.p"
 TREE_STORE = "data/biggertest/features"
 TEXT_STORE = "data/biggertest/indices"
 IM_RESIZE_DIMS = (227, 227)
-NUM_KD_TREES = 3
+# NUM_KD_TREES = 3
 WEBAPP_PATH = "static/"
 
 def init_ports():

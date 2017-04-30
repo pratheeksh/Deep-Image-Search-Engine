@@ -5,6 +5,7 @@ import sys
 import numpy as np
 from scipy.spatial import KDTree
 
+sys.setrecursionlimit(10000)
 feats = []
 keys = []
 data = map(lambda x: x.strip().split('\t'), sys.stdin)
@@ -16,5 +17,5 @@ for k, feat_vecs in data:
     except:
         continue
 feats = np.array(feats)
-T = KDTree(np.array(feats))
+T = KDTree(np.array(feats), leafsize=20)
 pickle.dump({" ".join(keys): T}, sys.stdout.buffer)
