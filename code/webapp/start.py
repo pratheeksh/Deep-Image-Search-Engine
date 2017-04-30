@@ -6,7 +6,7 @@ import pickle
 import urllib
 from collections import defaultdict
 from itertools import chain
-
+from io import BytesIO
 import numpy as np
 import requests
 import tornado
@@ -42,11 +42,11 @@ class Web(web.RequestHandler):
         self.finish()
     @gen.coroutine
     def get_feature_vector(self, image_url):
-        # http = httpclient.AsyncHTTPClient()
-        # result = yield http.fetch(image_url)
-        # im2 = Image.open(BytesIO(result.body))
         try:
-            im2 = Image.open(requests.get(image_url, stream=True).raw)
+            http = httpclient.AsyncHTTPClient()
+            result = yield http.fetch(image_url)
+            im2 = Image.open(BytesIO(result.body))
+            #im2 = Image.open(requests.get(image_url, stream=True).raw)
         except OSError:
             ##print something on the webpage
             print("error, cant process image")
