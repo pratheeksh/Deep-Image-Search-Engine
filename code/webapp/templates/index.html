@@ -23,10 +23,12 @@
 </form> -->
 <div class="container">
   <form>
-
+       <div class="form-group">
+    <label for="imagename">Upload an Image :</label>
     <label class="btn btn-default btn-file"  id="file-upload">
-    Browse <input type="file" hidden id="file-name">
-</label>
+     <input type="file" hidden id="file-name">
+        </div>
+  </label>
 
 
     <div class="form-group">
@@ -45,52 +47,44 @@
 
  <script type="text/javascript">
         document.getElementById('btn').onclick = function() {
-           console.log("Button clicked")
-            var val = document.getElementById('imagename').value,
+            var val = document.getElementById('imagename').value
+            if (val) {
                 src = val,
                 img = document.createElement('img');
-
-            img.src = src;
-            img.id = 'uploadedimage';
-            img.width = 200;
-            img.height = 200;
-            var div = document.getElementById('displayimage');
-            div.innerHTML="";
-            console.log(img.src)
-            if (src) {
-              div.appendChild(img);
+                img.src = src;
+                img.id = 'uploadedimage';
+                img.width = 200;
+                img.height = 200;
+                var div = document.getElementById('displayimage');
+                div.innerHTML="";
+                console.log(img.src)
+                if (src) {
+                  div.appendChild(img);
+                }
             }
-        }
-
-        document.getElementById('file-name').onchange = function(){
-         readURL(this);
         }
         function readURL(input) {
-
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-             src =e.target.result
-             img = document.createElement('img');
-             img.id = 'uploadedimage';
-             img.src = src;
-             console.log(src)
-             console.log(src.data)
-             img.id = 'uploadedimage';
-             img.width = 200;
-             img.height = 200;
-             var div = document.getElementById('displayimage');
-             div.innerHTML="";
-             div.appendChild(img);
-                console.log('image loaded')
-                uploadToServer(src)
-             }
-
-            reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function uploadToServer(src){
+            console.log(input)
+            var filesrc
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                 src = e.target.result
+                 filesrc = src
+                 img = document.createElement('img');
+                 img.id = 'uploadedimage';
+                 img.src = src;
+                 img.width = 200;
+                 img.height = 200;
+                 var div = document.getElementById('displayimage');
+                 div.innerHTML="";
+                 div.appendChild(img);
+                 return uploadToServer(src)
+                 }
+                reader.readAsDataURL(input.files[0]);
+                }
+          }
+          function uploadToServer(src){
              $.ajax({
               type: "GET",
               url: "/upload",
@@ -103,6 +97,7 @@
                 console.log(error);
               }
             });
+            return src;
         }
 
 
