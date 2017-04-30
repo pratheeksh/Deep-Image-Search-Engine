@@ -36,7 +36,8 @@ print(worker_servers)
 # assert(len(worker_servers) == inventory.WORKER_THREAD_COUNT)
 def thread_helper(is_mapper, urls):
     pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
-    results = pool.map(urllib.request.urlopen, urls)
+    urltimeout = [(url, timeout=10000) for url in urls]
+    results = pool.map(urllib.request.urlopen, urltimeout)
 
     pool.close()
     pool.join()
