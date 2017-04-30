@@ -1,20 +1,22 @@
-import hashlib
 import heapq
 import io
 import json
 import logging
 import os
 import pickle
-import sys
-import uuid
-import urllib.request
 import socket
-from subprocess import Popen, PIPE
+import sys
+import threading
+import urllib.request
+import uuid
 from multiprocessing.pool import ThreadPool
+from subprocess import Popen, PIPE
 
-from tornado import gen, process, netutil, ioloop, httpserver
+from tornado import gen, ioloop
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import RequestHandler, Application
+
+list_lock = threading.Lock()
 
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from code import inventory
@@ -105,13 +107,13 @@ class ReduceHandler(RequestHandler):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
             url = server + "/retrieve_map_output?reducer_ix=" + str(reducer_ix) + "&map_task_id=" + map_task_id
-            urls.append(url)
+            responses.append(urllib.request.urlopen(url))
             # futures.append(http_client.fetch(url))
             # responses.append(urllib.request.urlopen(url, timeout=100000))
 
             # res = yield http_client.fetch(url)
 
-        responses =  yield self.thread_helper(urls)
+        # responses = yield self.thread_helper(urls)
         print("RESPONSES RECEIVED")
         for res in responses:
             # result = json.loads(res.body.decode('utf-8'))
@@ -120,6 +122,7 @@ class ReduceHandler(RequestHandler):
             result = json.loads(html.decode(encoding))
             if len(result) > 0:
                 result = [tuple(l) for l in result]
+                # with list_lock:
                 results_to_sort.append(result)
         merged = heapq.merge(*results_to_sort)
 
@@ -147,10 +150,12 @@ class ReduceHandler(RequestHandler):
 
     @gen.coroutine
     def thread_helper(self, urls):
+        print("inside thread helper")
         pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
         results = pool.map(urllib.request.urlopen, urls)
         pool.close()
         pool.join()
+        print("done inside thread helper")
         return results
 
 
