@@ -33,7 +33,6 @@ $(function() {
     $("#searching").show();
     console.log("searching...")
 
-
     // ajax request
     $.ajax({
       type: "GET",
@@ -53,9 +52,6 @@ $(function() {
         $("#results").append('<tr><th><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
     '" class="result-img"></a></th><th>'+data[i]['title']+'</th><th>'+data[i]['text']+'</th><th>'+data[i]['source']+'</th></tr>')
        };
-
-
-
       },
       // handle error
       error: function(error) {
@@ -65,23 +61,18 @@ $(function() {
     });
 
   });
+ 
 
   // button click
   $("#btn").click(function() {
     var start = new Date().getTime();
-
+    console.log("Inside button click", uploaded_image)
     // empty/hide results
     $("#results").empty();
     $("#results-table").hide();
     $("#results-heading").hide();
     $("#error").empty();
     $("#delay").empty();
-
-
-    // $("#uploadedimage").empty()
-
-    // add active class to clicked picture
-    // $(this).addClass("active")
 
     // grab image url
     var image = $('#imagename').val()
@@ -103,7 +94,7 @@ $(function() {
       type: "GET",
       url: "/search",
       data : { img : image,
-                  txt : text },
+                  txt : text, load : uploaded_image},
       // handle success
       success: function(jsonResponse) {
         console.log("Success something received")
