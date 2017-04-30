@@ -23,14 +23,6 @@
 </form> -->
 <div class="container">
   <form>
-       <div class="form-group">
-    <label for="imagename">Upload an Image :</label>
-    <label class="btn btn-default btn-file"  id="file-upload">
-     <input type="file" hidden id="file-name">
-        </div>
-  </label>
-
-
     <div class="form-group">
       <label for="imagename">Image URL:</label>
       <input type="text" class="form-control" id="imagename">
@@ -47,40 +39,22 @@
 
  <script type="text/javascript">
         document.getElementById('btn').onclick = function() {
-            var val = document.getElementById('imagename').value
-            if (val) {
+           console.log("Button clicked")
+            var val = document.getElementById('imagename').value,
                 src = val,
                 img = document.createElement('img');
-                img.src = src;
-                img.id = 'uploadedimage';
-                img.width = 200;
-                img.height = 200;
-                var div = document.getElementById('displayimage');
-                div.innerHTML="";
-                console.log(img.src)
-                if (src) {
-                  div.appendChild(img);
-                }
+
+            img.src = src;
+            img.id = 'uploadedimage';
+            img.width = 200;
+            img.height = 200;
+            var div = document.getElementById('displayimage');
+            div.innerHTML="";
+            console.log(img.src)
+            if (src) {
+              div.appendChild(img);
             }
         }
-
-          function uploadToServer(src){
-             $.ajax({
-              type: "GET",
-              url: "/upload",
-              data : { img : src },
-              // handle success
-              success: function(jsonResponse) {
-              },
-              // handle error
-              error: function(error) {
-                console.log(error);
-              }
-            });
-            return src;
-        }
-
-
     </script>
 <div class="container">
          <div class="row" ng-if="errorText">
