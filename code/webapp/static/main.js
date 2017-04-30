@@ -61,7 +61,25 @@ $(function() {
     });
 
   });
- 
+  var uploaded_image = "Empty"
+  $("#file-name").change(function() {
+    if (this.files && this.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+           src = e.target.result
+           uploaded_image = src
+           img = document.createElement('img');
+           img.id = 'uploadedimage';
+           img.src = src;
+           img.width = 200;
+           img.height = 200;
+           var div = document.getElementById('displayimage');
+           div.innerHTML="";
+           div.appendChild(img);
+           }
+          reader.readAsDataURL(this.files[0]);
+     }
+  });
 
   // button click
   $("#btn").click(function() {

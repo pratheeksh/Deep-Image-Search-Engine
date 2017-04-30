@@ -42,7 +42,6 @@ class UploadFile(web.RequestHandler):
         print(len(uploaded_img))
         imgdata = base64.b64decode(uploaded_img)
         im2 = Image.open(BytesIO(imgdata))
-
         print("Image data written to disk")
 
 class Web(web.RequestHandler):
@@ -88,7 +87,6 @@ class Web(web.RequestHandler):
         qtxt = self.get_arguments('txt', True)[0].split()
         qupload = self.get_argument('load', None)
         qupload = yield self.get_image_from_base64(qupload)
-        print("Uploaded image", qupload)
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
         print("Text  query is: {}".format(qtxt))
@@ -97,7 +95,11 @@ class Web(web.RequestHandler):
             print("Empty image query")
             postings = None
         else:
-            feature_vector = yield self.get_feature_vector(str(q))
+            if qupload is not None:
+                print("Checkpoint 1")
+                feature_vector = yield self.get_feature_vector(image_url = None, im2 = qupload)
+            else :
+                feature_vector = yield self.get_feature_vector(str(q))
             # Fetch postings from image index servers
             http = httpclient.AsyncHTTPClient()
             responses = yield [

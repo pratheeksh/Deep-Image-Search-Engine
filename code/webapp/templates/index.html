@@ -63,27 +63,7 @@
                 }
             }
         }
-        function readURL(input) {
-            console.log(input)
-            var filesrc
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                 src = e.target.result
-                 filesrc = src
-                 img = document.createElement('img');
-                 img.id = 'uploadedimage';
-                 img.src = src;
-                 img.width = 200;
-                 img.height = 200;
-                 var div = document.getElementById('displayimage');
-                 div.innerHTML="";
-                 div.appendChild(img);
-                 return uploadToServer(src)
-                 }
-                reader.readAsDataURL(input.files[0]);
-                }
-          }
+
           function uploadToServer(src){
              $.ajax({
               type: "GET",
