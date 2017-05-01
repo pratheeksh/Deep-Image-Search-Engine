@@ -120,6 +120,18 @@ class Web(web.RequestHandler):
             postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                               key=lambda x: x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
+            # Check if any of the returned images are black, and if they are
+            # boost the distance by 100 to avoid showing as a result
+            # COMMENT OUT between ======= to revert to old version
+            # ===========================================
+            for p in postings:
+                fname = str(p[0]) + '.jpg'
+                im = getImage(fname, inventory.IMAGES_STORE)
+                b = is_black(im)
+                if b:
+                    print("Boosting image score")
+                    p[1] += 100
+            postings = sorted(postings, key=lambda x: x[1])
             print("Postings list image search", postings)
 
         if len(qtxt) == 0:
