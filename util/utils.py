@@ -4,8 +4,28 @@ from torchvision import models
 from torchvision import transforms
 from torch.autograd import Variable
 import numpy as np
+import os
+import sys
+from PIL import Image as PImage
 import re
 import pprint
+from util.image_processing_fns import getImage, convertImageToArray, showImage
+
+def is_black(image, threshold=0.9):
+    image = convertImageToArray(image)
+    try:
+        image = image.reshape((-1, image.shape[2]))
+    except:
+        # greyscale images
+        image = image.reshape((-1, 1))
+    # sum colour channels
+    image = np.sum(image, axis=1)
+    black = image < 15
+    percent_black = black.sum() / black.shape[0]
+    print("Percent black: {0:.4f}".format(percent_black))
+    if percent_black > threshold:
+        return True
+    return False
 
 # Adapted from Matt Doherty, SEA, assignment 2 solutions
 UGLY_TEXT_MAP = dict([(ord(char), None) for char in '[]{}'] + [(ord(char), ' ') for char in '|=*\\#'])
