@@ -9,7 +9,7 @@ kd_tree_base = inventory.TREE_STORE
 
 class Index(web.RequestHandler):
     def initialize(self, shard_id):
-        self.kd_tree_dict = pickle.load(open(kd_tree_base + "/test_" + str(shard_id) + ".out", "rb"))
+        self.kd_tree_dict = pickle.load(open(kd_tree_base + "/" + str(shard_id) + ".out", "rb"))
         self.file_names = list(self.kd_tree_dict.keys())[0].split()
         self.kd_tree = self.kd_tree_dict[list(self.kd_tree_dict.keys())[0]]
 

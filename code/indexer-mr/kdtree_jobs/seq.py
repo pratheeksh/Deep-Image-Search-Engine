@@ -17,7 +17,7 @@ for i in range(25):
     keys = []
     print("files processed ",len(files_of_interest), start, start+20)
     for input_file in files_of_interest:
-        data = pickle.load(open(input_file, "rb"))
+        data = pickle.load(open(input_dir + "/" + input_file, "rb"))
         for k in data:
             try:
                 feats.append(data[k])
@@ -26,6 +26,6 @@ for i in range(25):
                 continue
     feats = np.array(feats)
     T = KDTree(np.array(feats), leafsize=20)
-    pickle.dump({" ".join(keys): T}, open("test_" + str(i) + ".out", "wb"))
+    pickle.dump({" ".join(keys): T}, open( str(i) + ".out", "wb"))
     start += 20
     print(start)
