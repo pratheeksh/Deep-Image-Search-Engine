@@ -5,7 +5,7 @@ console.log( "ready!" );
 $("#searching").hide();
 $("#results-table").hide();
 $("#error").hide();
-
+$("#txt-upload").hide();
 
 $(function() {
 
@@ -13,6 +13,7 @@ $(function() {
 	var files;
 	var filename="Empty";
    // Add events
+    $("#txt-upload").empty();
 	$('input[type=file]').on('change', prepareUpload);
 	$('form').on('submit', uploadFiles);
 
@@ -27,6 +28,8 @@ $(function() {
 	// Catch the form submit and upload the files
 	function uploadFiles(event)
 	{
+	$("#txt-upload").show();
+	 $("#txt-upload").text("Uploading the image to server... Please wait " );
 		event.stopPropagation(); // Stop stuff happening
         event.preventDefault(); // Totally stop stuff happening
 
@@ -50,7 +53,10 @@ $(function() {
             success: function(jsonResponse)
             {
             filename = jsonResponse
-            console.log("Success Image stored as ", jsonResponse)
+
+
+            $("#txt-upload").text("Success Image stored as " + jsonResponse);
+            console.log("Image stored as ", jsonResponse)
 
             },
             error: function(response)
