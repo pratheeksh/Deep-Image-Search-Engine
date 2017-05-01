@@ -16,7 +16,7 @@ from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 from functools import lru_cache
 from code import inventory
-from util.image_processing_fns import resizeImageAlt, convertImageToArray
+from util.image_processing_fns import resizeImageAlt, convertImageToArray, getImage
 from util.utils import convert_array_to_Variable, load_model
 from . import index, doc, text_index_servers
 inventory.init_ports()
