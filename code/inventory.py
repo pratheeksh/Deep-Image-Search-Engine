@@ -1,6 +1,5 @@
 import getpass
 import hashlib
-#####  DO NOT TOUCH THE PORTS PLEASE ####
 MAX_PORT = 49123
 MIN_PORT = 10000
 # HOSTNAME = "http://localhost"
