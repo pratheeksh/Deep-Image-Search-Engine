@@ -185,6 +185,7 @@ python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 8. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
 9. Cannot handle 4 channel images . Need error handling for that
 
+
 ## Successes yay!
 1. Feature extraction and similarity worked out very well, alexnet extracts features very fast as well.
 2. KD trees give very good results, and qulity of results obtained in log n time are comparable to linear time search
