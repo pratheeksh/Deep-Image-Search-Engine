@@ -89,7 +89,10 @@ $(function() {
 
     // check if anything was uploaded
     if (filename) {
-      
+      if(image != 'http://') {
+            filename = "Empty"
+            console.log("Image url given precendence to Uploaded image")
+      }
       console.log("Uploaded file was saved here ", filename)
     }
 
