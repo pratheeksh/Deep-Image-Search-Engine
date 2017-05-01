@@ -89,9 +89,7 @@ $(function() {
 
     // check if anything was uploaded
     if (filename) {
-       if(image ! = 'http://') {
-            filename = "Empty"
-       }
+      
       console.log("Uploaded file was saved here ", filename)
     }
 
