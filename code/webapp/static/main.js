@@ -33,6 +33,7 @@ $(function() {
     $("#searching").show();
     console.log("searching...")
 
+
     // ajax request
     $.ajax({
       type: "GET",
@@ -52,6 +53,9 @@ $(function() {
         $("#results").append('<tr><th><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
     '" class="result-img"></a></th><th>'+data[i]['title']+'</th><th>'+data[i]['text']+'</th><th>'+data[i]['source']+'</th></tr>')
        };
+
+
+
       },
       // handle error
       error: function(error) {
@@ -61,36 +65,23 @@ $(function() {
     });
 
   });
-  var uploaded_image = "Empty"
-  $("#file-name").change(function() {
-    if (this.files && this.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-           src = e.target.result
-           uploaded_image = src
-           img = document.createElement('img');
-           img.id = 'uploadedimage';
-           img.src = src;
-           img.width = 200;
-           img.height = 200;
-           var div = document.getElementById('displayimage');
-           div.innerHTML="";
-           div.appendChild(img);
-           }
-          reader.readAsDataURL(this.files[0]);
-     }
-  });
 
   // button click
   $("#btn").click(function() {
     var start = new Date().getTime();
-    console.log("Inside button click", uploaded_image)
+
     // empty/hide results
     $("#results").empty();
     $("#results-table").hide();
     $("#results-heading").hide();
     $("#error").empty();
     $("#delay").empty();
+
+
+    // $("#uploadedimage").empty()
+
+    // add active class to clicked picture
+    // $(this).addClass("active")
 
     // grab image url
     var image = $('#imagename').val()
@@ -112,7 +103,7 @@ $(function() {
       type: "GET",
       url: "/search",
       data : { img : image,
-                  txt : text, load : uploaded_image},
+                  txt : text },
       // handle success
       success: function(jsonResponse) {
         console.log("Success something received")

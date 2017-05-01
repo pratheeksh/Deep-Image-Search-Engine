@@ -2,7 +2,6 @@ import json
 import logging
 import math
 import os
-import base64
 import pickle
 import urllib
 from collections import defaultdict
@@ -34,15 +33,6 @@ SETTINGS = {
 }
 log = logging.getLogger(__name__)
 
-class UploadFile(web.RequestHandler):
-    @gen.coroutine
-    def get(self):
-        uploaded_img = self.get_argument('img', None)
-        uploaded_img = uploaded_img.split(',')[1]
-        print(len(uploaded_img))
-        imgdata = base64.b64decode(uploaded_img)
-        im2 = Image.open(BytesIO(imgdata))
-        print("Image data written to disk")
 
 class Web(web.RequestHandler):
     def initialize(self, model):
@@ -50,56 +40,38 @@ class Web(web.RequestHandler):
 
     def head(self):
         self.finish()
-
-
     @gen.coroutine
-    def get_image_from_base64(self, base64image):
-        print("Received a base64 image from the server")
-        uploaded_img = base64image.split(',')[1]
-        imgdata = base64.b64decode(uploaded_img)
-        im2 = Image.open(BytesIO(imgdata))
-        return im2
-
-    @gen.coroutine
-    def get_feature_vector(self, image_url, im2 = None):
-        if im2 == None :
-            try:
-                http = httpclient.AsyncHTTPClient()
-                result = yield http.fetch(image_url)
-                im2 = Image.open(BytesIO(result.body))
-                #im2 = Image.open(requests.get(image_url, stream=True).raw)
-            except OSError:
-                ##print something on the webpage
-                print("error, cant process image")
-                return
+    def get_feature_vector(self, image_url):
+        try:
+            http = httpclient.AsyncHTTPClient()
+            result = yield http.fetch(image_url)
+            im2 = Image.open(BytesIO(result.body))
+            #im2 = Image.open(requests.get(image_url, stream=True).raw)
+        except OSError:
+            ##print something on the webpage
+            print("error, cant process image")
+            return
         im2 = resizeImageAlt(im2, inventory.IM_RESIZE_DIMS)
         im2 = convertImageToArray(im2)
         im2_np = np.transpose(np.array(im2), (2, 0, 1))
         im2 = convert_array_to_Variable(np.array([im2_np]))
         feature_vector = self.model(im2)
         return feature_vector.data.numpy().reshape((4096,))
-
-
     @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
         q = self.get_argument('img', None)
         qtxt = self.get_arguments('txt', True)[0].split()
-        qupload = self.get_argument('load', None)
-        qupload = yield self.get_image_from_base64(qupload)
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
         print("Text  query is: {}".format(qtxt))
 
-        if q == 'http://' and qupload is None:
+        if q == 'http://':
             print("Empty image query")
             postings = None
         else:
-            if qupload is not None:
-                print("Checkpoint 1")
-                feature_vector = yield self.get_feature_vector(image_url = None, im2 = qupload)
-            else :
-                feature_vector = yield self.get_feature_vector(str(q))
+            feature_vector = yield self.get_feature_vector(str(q))
+
             # Fetch postings from image index servers
             http = httpclient.AsyncHTTPClient()
             responses = yield [
@@ -261,7 +233,6 @@ def main():
         port = inventory.BASE_PORT
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web, dict(model=model)),
-             (r'/upload', UploadFile),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
         ], **SETTINGS))
