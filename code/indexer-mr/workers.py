@@ -1,26 +1,20 @@
+import hashlib
 import heapq
 import io
 import json
 import logging
 import os
 import pickle
-import socket
-import sys
-import threading
-import urllib.request
+# import sys
 import uuid
-from multiprocessing.pool import ThreadPool
 from subprocess import Popen, PIPE
-import requests
-from tornado import gen, ioloop
+
+from tornado import gen, process, netutil, ioloop, httpserver
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import RequestHandler, Application
 
-list_lock = threading.Lock()
-
 # sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from code import inventory
-sys.setrecursionlimit(10000)
 
 inventory.init_ports()
 root = os.path.dirname(__file__)
@@ -29,17 +23,12 @@ log = logging.getLogger(__name__)
 
 global_map_dict = {}
 
-# timeout in seconds
-timeout = 10000
-socket.setdefaulttimeout(timeout)
-
 worker_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.WORKER_PORTS]
 
 
 class MapHandler(RequestHandler):
     @gen.coroutine
     def get(self):
-        #print("INSIDE MAP HANDLER")
         mapper_path = self.get_argument('mapper_path')
         input_file = self.get_argument('input_file')
         num_reducers = int(self.get_argument('num_reducers'))
@@ -47,7 +36,6 @@ class MapHandler(RequestHandler):
         output, err = p.communicate(open(input_file, "rb").read())
         rc = p.returncode
         if rc == 0:
-            #print("RETURN CODE ZERO, PROCESSING")
             map_task_id = str(uuid.uuid4())
             global_map_dict[map_task_id] = {}
             for reducer_idx in range(num_reducers):
@@ -99,30 +87,20 @@ class ReduceHandler(RequestHandler):
         http_client.configure(None, defaults=dict(connect_timeout=2000000, request_timeout=80000000, max_clients=100000000))
         results_to_sort = []
         futures = []
-        urls =[]
-        responses = []
         count = 0
-        print("INSIDE REDUCE HANDLER")
         for i, map_task_id in enumerate(map_task_ids):
             server = worker_servers[i % inventory.WORKER_THREAD_COUNT]
             count += 1
             url = server + "/retrieve_map_output?reducer_ix=" + str(reducer_ix) + "&map_task_id=" + map_task_id
-            responses.append(requests.get(url, timeout=1000))
-            # futures.append(http_client.fetch(url))
-            # responses.append(urllib.request.urlopen(url, timeout=100000))
+            futures.append(http_client.fetch(url))
 
             # res = yield http_client.fetch(url)
 
-        # responses = yield self.thread_helper(urls)
-        print("RESPONSES RECEIVED")
+        responses = yield futures
         for res in responses:
-            # result = json.loads(res.body.decode('utf-8'))
-            html = res.read()
-            encoding = res.info().get_content_charset('utf-8')
-            result = json.loads(html.decode(encoding))
+            result = json.loads(res.body.decode('utf-8'))
             if len(result) > 0:
                 result = [tuple(l) for l in result]
-                # with list_lock:
                 results_to_sort.append(result)
         merged = heapq.merge(*results_to_sort)
 
@@ -148,38 +126,28 @@ class ReduceHandler(RequestHandler):
             print(output, err)
         self.write(json.dumps({"status": "success"}))
 
-    @gen.coroutine
-    def thread_helper(self, urls):
-        print("inside thread helper")
-        pool = ThreadPool(inventory.WORKER_THREAD_COUNT)
-        results = pool.map(urllib.request.urlopen, urls)
-        pool.close()
-        pool.join()
-        print("done inside thread helper")
-        return results
 
-
-def create_workers(port):
+def create_workers():
     app = Application(handlers=[
         (r"/map", MapHandler),
         (r"/retrieve_map_output", RetrieveMapOutputHandler),
         (r"/reduce", ReduceHandler)
     ])
 
-    app.listen(port)
+    return app
 
 
 def start_workers():
-    # num_procs = inventory.WORKER_THREAD_COUNT
-    # task_id = process.fork_processes(num_procs, max_restarts=0)
-    port = inventory.WORKER_PORTS
-    # app = httpserver.HTTPServer(create_workers())
-    log.info("Worker is listening on %s", inventory.HOSTNAME + ":" + str(port))
-    for p in port:
-        try:
-            create_workers(p)
-        except OSError:
-            print(p, " crying")
+    num_procs = inventory.WORKER_THREAD_COUNT
+    task_id = process.fork_processes(num_procs, max_restarts=0)
+    port = inventory.WORKER_PORTS[task_id]
+    app = httpserver.HTTPServer(create_workers())
+    log.info("Worker %s is listening on %s", task_id, inventory.HOSTNAME + ":" + str(port))
+
+    try:
+        app.add_sockets(netutil.bind_sockets(port))
+    except OSError:
+        print(port, " crying")
 
 
 if __name__ == '__main__':

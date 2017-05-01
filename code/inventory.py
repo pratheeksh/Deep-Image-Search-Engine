@@ -6,7 +6,7 @@ MIN_PORT = 10000
 #HOSTNAME = "http://localhost"
 HOSTNAME =  "http://ec2-54-200-53-153.us-west-2.compute.amazonaws.com"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
-            (MAX_PORT - MIN_PORT) + MIN_PORT + 100
+            (MAX_PORT - MIN_PORT) + MIN_PORT
 
 NUM_INDEX_SERVERS = 25
 NUM_TXT_INDEX_SERVERS = 10
