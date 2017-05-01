@@ -9,82 +9,60 @@ $("#error").hide();
 
 $(function() {
 
-  // sanity check
-  console.log( "ready123!" );
-  // remove active class
-  $(".img").removeClass("active")
-  
-  // image click
-  $(".img").click(function() {
+    // Variable to store your files
+	var files;
+	var filename="Empty";
+   // Add events
+	$('input[type=file]').on('change', prepareUpload);
+	$('form').on('submit', uploadFiles);
 
-    // empty/hide results
-    $("#results").empty();
-    $("#results-table").hide();
-    $("#error").hide();
+	// Grab the files and set them to our variable
+	function prepareUpload(event)
+	{
 
-    // add active class to clicked picture
-    $(this).addClass("active")
+		files = event.target.files;
+		console.log(files)
+	}
 
-    // grab image url
-    var image = $(this).attr("src")
-    console.log(image)
+	// Catch the form submit and upload the files
+	function uploadFiles(event)
+	{
+		event.stopPropagation(); // Stop stuff happening
+        event.preventDefault(); // Totally stop stuff happening
 
-    // show searching text
-    $("#searching").show();
-    console.log("searching...")
+        // START A LOADING SPINNER HERE
 
-    // ajax request
-    $.ajax({
-      type: "GET",
-      url: "/search",
-      data : { img : image,
-                  txt : 'sunset' },
-      // handle success
-      success: function(jsonResponse) {
-        console.log("Success something received")
-        var obj = JSON.parse(jsonResponse);
-        var data = obj.results
-        console.log(data)
-        // show table
-        $("#results-table").show();
-        // loop through results, append to dom
-        for (i = 0; i < data.length; i++) {
-        $("#results").append('<tr><th><a href="'+data[i]["flickr"]+'"><img src="'+data[i]["image_url"]+
-    '" class="result-img"></a></th><th>'+data[i]['title']+'</th><th>'+data[i]['text']+'</th><th>'+data[i]['source']+'</th></tr>')
-       };
-      },
-      // handle error
-      error: function(error) {
+        // Create a formdata object and add the files
+		var data = new FormData();
+		$.each(files, function(key, value)
+		{
+			data.append(key, value);
+		});
 
-        console.log(error);
-      }
-    });
+        $.ajax({
+            url: 'upload?files',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'text',
+            processData: false, // Don't process the files
+            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+            success: function(jsonResponse)
+            {
+            filename = jsonResponse
+            console.log("Success Image stored as ", jsonResponse)
 
-  });
-  var uploaded_image = "Empty"
-  $("#file-name").change(function() {
-    if (this.files && this.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-           src = e.target.result
-           uploaded_image = src
-           img = document.createElement('img');
-           img.id = 'uploadedimage';
-           img.src = src;
-           img.width = 200;
-           img.height = 200;
-           var div = document.getElementById('displayimage');
-           div.innerHTML="";
-           div.appendChild(img);
-           }
-          reader.readAsDataURL(this.files[0]);
-     }
-  });
+            },
+            error: function(response)
+            {
+            	console.log('ERRORS: ' + response);
+            }
+        });
+    }
 
   // button click
   $("#btn").click(function() {
     var start = new Date().getTime();
-    console.log("Inside button click", uploaded_image)
     // empty/hide results
     $("#results").empty();
     $("#results-table").hide();
@@ -92,12 +70,7 @@ $(function() {
     $("#error").empty();
     $("#delay").empty();
 
-    // grab image url
-    var image = $('#imagename').val()
-    if (!image || 0 === image.length) {
-      console.log("Changing image")
-      image = 'http://'
-    }
+
     console.log(image)
     var text = $('#textsearch').val()
     console.log(text)
@@ -107,12 +80,28 @@ $(function() {
     console.log("searching...")
 
 
+    // grab image url
+    var image = $('#imagename').val()
+    if (!image || 0 === image.length) {
+      console.log("Changing image")
+      image = 'http://'
+    }
+
+    // check if anything was uploaded
+    if (filename) {
+       if(image ! = 'http://') {
+            filename = "Empty"
+       }
+      console.log("Uploaded file was saved here ", filename)
+    }
+
+
     // ajax request
     $.ajax({
       type: "GET",
       url: "/search",
       data : { img : image,
-                  txt : text, load : uploaded_image},
+                  txt : text, load : filename},
       // handle success
       success: function(jsonResponse) {
         console.log("Success something received")

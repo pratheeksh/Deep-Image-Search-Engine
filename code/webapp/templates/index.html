@@ -8,7 +8,8 @@
   <meta name="author" content="">
 
   <title>Image Search</title>
-
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="static/upload.js"></script>
   <!-- stylesheets -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <!-- <link href="static/main.css" rel="stylesheet"> -->
@@ -16,20 +17,20 @@
 </head>
 
 <body>
-<!-- <form>
-    <input type="text" id="imagename" value="" />
-    <input type="text" id="textsearch" value="" />
-    <input type="button" id="btn" value="GO" />
-</form> -->
-<div class="container">
-  <form>
-       <div class="form-group">
-    <label for="imagename">Upload an Image :</label>
-    <label class="btn btn-default btn-file"  id="file-upload">
-     <input type="file" hidden id="file-name">
-        </div>
-  </label>
 
+<div class="container">
+
+
+     <div class="form-group">
+<form enctype="multipart/form-data" action="/upload" method="post">
+     <div class="form-group">
+        <label for="file1">Browse and Upload:</label>
+         <input type="file" name="file1"  />
+         <br><br>
+         <input type="submit" class="btn btn-primary" value="upload"  />
+          </div>
+    </form>
+ </div>
 
     <div class="form-group">
       <label for="imagename">Image URL:</label>
@@ -46,7 +47,10 @@
 </div>
 
  <script type="text/javascript">
+
+
         document.getElementById('btn').onclick = function() {
+
             var val = document.getElementById('imagename').value
             if (val) {
                 src = val,
@@ -64,6 +68,31 @@
             }
         }
 
+        document.getElementById('file-name').onchange = function(){
+           readURL(this);
+
+        }
+        function readURL(input) {
+            console.log(input)
+            var filesrc
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                 src = e.target.result
+                 filesrc = src
+                 img = document.createElement('img');
+                 img.id = 'uploadedimage';
+                 img.src = src;
+                 img.width = 200;
+                 img.height = 200;
+                 var div = document.getElementById('displayimage');
+                 div.innerHTML="";
+                 div.appendChild(img);
+                 //uploadToServer(src)
+                 }
+                reader.readAsDataURL(input.files[0]);
+                }
+          }
           function uploadToServer(src){
              $.ajax({
               type: "GET",
@@ -77,7 +106,7 @@
                 console.log(error);
               }
             });
-            return src;
+
         }
 
 

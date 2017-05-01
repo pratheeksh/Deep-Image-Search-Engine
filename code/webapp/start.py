@@ -4,7 +4,7 @@ import math
 import os
 import base64
 import pickle
-import urllib
+import urllib, random , string
 from collections import defaultdict
 from itertools import chain
 from io import BytesIO
@@ -34,17 +34,23 @@ SETTINGS = {
 }
 log = logging.getLogger(__name__)
 
-class UploadFile(web.RequestHandler):
+counter = 0
+class UploadHandler(tornado.web.RequestHandler):  #For Upload
     @gen.coroutine
-    def get(self):
-        uploaded_img = self.get_argument('img', None)
-        uploaded_img = uploaded_img.split(',')[1]
-        print(len(uploaded_img))
-        imgdata = base64.b64decode(uploaded_img)
-        im2 = Image.open(BytesIO(imgdata))
-        print("Image data written to disk")
+    def post(self):
+        print("Somthing recieved")
+        file1 = self.request.files['0']
+        filename = file1[0]['filename']
+        filebody = file1[0]['body']
+        with open('code/webapp/static/uploads/{}'.format(filename), 'wb') as f:
+                f.write(filebody)
+        f.close()
+        print("File writen to uploads/", file1[0]['filename'])
+        self.write(filename)
+
 
 class Web(web.RequestHandler):
+
     def initialize(self, model):
         self.model = model
 
@@ -69,7 +75,6 @@ class Web(web.RequestHandler):
                 im2 = Image.open(BytesIO(result.body))
                 #im2 = Image.open(requests.get(image_url, stream=True).raw)
             except OSError:
-                ##print something on the webpage
                 print("error, cant process image")
                 return
         im2 = resizeImageAlt(im2, inventory.IM_RESIZE_DIMS)
@@ -83,20 +88,25 @@ class Web(web.RequestHandler):
     @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
+
         q = self.get_argument('img', None)
         qtxt = self.get_arguments('txt', True)[0].split()
-        qupload = self.get_argument('load', None)
-        qupload = yield self.get_image_from_base64(qupload)
+        qupload = self.get_argument('load', "Empty")
+        print("Upload image parameter for Rose is  ", qupload)  #For Upload
+        if qupload != "Empty"  :  #For Upload
+            try:
+                qupload = Image.open('code/webapp/static/uploads/{}'.format(qupload)) #For Upload
+                print("Loaded image from uploads", qupload)
+            except:
+                print("error, cant process image")
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
         print("Text  query is: {}".format(qtxt))
-
-        if q == 'http://' and qupload is None:
+        if q == 'http://' and qupload == "Empty":
             print("Empty image query")
             postings = None
         else:
-            if qupload is not None:
-                print("Checkpoint 1")
+            if qupload != "Empty" :  #For Upload
                 feature_vector = yield self.get_feature_vector(image_url = None, im2 = qupload)
             else :
                 feature_vector = yield self.get_feature_vector(str(q))
@@ -249,11 +259,13 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
 
 def main():
     num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_TXT_INDEX_SERVERS + inventory.NUM_DOC_SERVERS + 1
+    model = None
     try:
         model = pickle.load(open('data/model.p', 'rb'))
     except FileNotFoundError:
         model = load_model()
         pickle.dump(model, open('data/model.p', 'wb'))
+
     log.info('Model loaded %s', type(model))
     task_id = process.fork_processes(num_procs, max_restarts=5)
 
@@ -261,7 +273,7 @@ def main():
         port = inventory.BASE_PORT
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web, dict(model=model)),
-             (r'/upload', UploadFile),
+             (r'/upload', UploadHandler),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
         ], **SETTINGS))
