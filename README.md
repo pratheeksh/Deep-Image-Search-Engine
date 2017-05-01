@@ -177,12 +177,13 @@ python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 ```
 ## Issues we ran into
 1. https://github.com/tornadoweb/tornado/issues/1753
-2. javascript file upload
-3. Pytorch set up on linserv - core dumped due to gcc version. Problem caused by AMD instead of Intel CPUs which stuggle to work with pytorch. Have to install pytorch from source. 
+2. Pytorch set up on linserv - core dumped due to gcc version. Problem caused by AMD instead of Intel CPUs which stuggle to work with pytorch. Have to install pytorch from source. 
 4. Tree recursion depth pickle error due to the size of kd tree
-5. Some images don't go through PIL's image library, causing an OSError
-6. Edge case normalization is a bit buggy
-7. Mercer works fine with pytorch but can't run webapp.
+5. Edge case normalization is a bit buggy
+6. Mercer works fine with pytorch but can't run webapp.
+7. Problems with image upload feature - Tornado had issues with uploading bigger images. So resorted to using jquery to upload the image to the server and then query. There is a  roundtrip time of 2-3 seconds. 
+8. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
+9. Cannot handle 4 channel images . Need error handling for that
 
 ## Successes yay!
 1. Feature extraction and similarity worked out very well, alexnet extracts features very fast as well.
