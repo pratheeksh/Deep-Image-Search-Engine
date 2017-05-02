@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import math
@@ -5,28 +6,23 @@ import os
 import pickle
 import urllib
 from collections import defaultdict
-from itertools import chain
+from functools import lru_cache
 from io import BytesIO
+from itertools import chain
+
 import numpy as np
-import argparse
 import tornado
 from PIL import Image
 from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
-from functools import lru_cache
+
 from code import inventory
 from util.image_processing_fns import resizeImageAlt, convertImageToArray, getImage
 from util.utils import convert_array_to_Variable, load_model, is_black
 from . import index, doc, text_index_servers
 
+inventory.init_ports()
 
-parser = argparse.ArgumentParser(description='Image search engine')
-parser.add_argument('--data_path', type=str, default='..data/FlickrData2/',
-                    help='location of the data source')
-
-args = parser.parse_args()
-
-inventory.init_ports(args.data_path)
 index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERVER_PORTS]
 txt_index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.TXT_INDEX_SERVER_PORTS]
 doc_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.DOC_SERVER_PORTS]
@@ -41,9 +37,10 @@ SETTINGS = {
 }
 log = logging.getLogger(__name__)
 
-
 counter = 0
-class UploadHandler(tornado.web.RequestHandler):  #For Upload
+
+
+class UploadHandler(tornado.web.RequestHandler):  # For Upload
     @gen.coroutine
     def post(self):
         print("Somthing recieved")
@@ -51,29 +48,27 @@ class UploadHandler(tornado.web.RequestHandler):  #For Upload
         filename = file1[0]['filename']
         filebody = file1[0]['body']
         with open('code/webapp/static/uploads/{}'.format(filename), 'wb') as f:
-                f.write(filebody)
+            f.write(filebody)
         f.close()
         print("File writen to uploads/", file1[0]['filename'])
         self.write(filename)
 
 
-
 class Web(web.RequestHandler):
-
     def initialize(self, model):
         self.model = model
 
     def head(self):
         self.finish()
-    @gen.coroutine
 
-    def get_feature_vector(self, image_url, im2 = None):
-        if im2 == None :
+    @gen.coroutine
+    def get_feature_vector(self, image_url, im2=None):
+        if im2 == None:
             try:
                 http = httpclient.AsyncHTTPClient()
                 result = yield http.fetch(image_url)
                 im2 = Image.open(BytesIO(result.body))
-                #im2 = Image.open(requests.get(image_url, stream=True).raw)
+                # im2 = Image.open(requests.get(image_url, stream=True).raw)
             except OSError:
                 print("error, cant process image")
                 return
@@ -83,6 +78,7 @@ class Web(web.RequestHandler):
         im2 = convert_array_to_Variable(np.array([im2_np]))
         feature_vector = self.model(im2)
         return feature_vector.data.numpy().reshape((4096,))
+
     @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
@@ -90,10 +86,10 @@ class Web(web.RequestHandler):
         q = self.get_argument('img', None)
         qtxt = self.get_arguments('txt', True)[0].split()
         qupload = self.get_argument('load', "Empty")
-        print("Upload image parameter for Rose is  ", qupload)  #For Upload
-        if qupload != "Empty"  :  #For Upload
+        print("Upload image parameter for Rose is  ", qupload)  # For Upload
+        if qupload != "Empty":  # For Upload
             try:
-                qupload = Image.open('code/webapp/static/uploads/{}'.format(qupload)) #For Upload
+                qupload = Image.open('code/webapp/static/uploads/{}'.format(qupload))  # For Upload
                 print("Loaded image from uploads", qupload)
             except:
                 print("error, cant process image")
@@ -104,21 +100,21 @@ class Web(web.RequestHandler):
             print("Empty image query")
             postings = None
         else:
-            if qupload != "Empty" :  #For Upload
-                feature_vector = yield self.get_feature_vector(image_url = None, im2 = qupload)
-            else :
+            if qupload != "Empty":  # For Upload
+                feature_vector = yield self.get_feature_vector(image_url=None, im2=qupload)
+            else:
                 feature_vector = yield self.get_feature_vector(str(q))
             # Fetch postings from image index servers
             http = httpclient.AsyncHTTPClient()
             responses = yield [
                 http.fetch('%s/index?%s' % (
-                server, urllib.parse.urlencode({'featvec': json.dumps(str(list(feature_vector)))})))
+                    server, urllib.parse.urlencode({'featvec': json.dumps(str(list(feature_vector)))})))
                 for server in index_servers]
             # Flatten postings and sort by score
             postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                               key=lambda x: x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
-            
+
             # Check if any of the returned images are black, and if they are
             # boost the distance by 100 to avoid showing as a result
             # COMMENT OUT between ======= to revert to old version
@@ -133,8 +129,7 @@ class Web(web.RequestHandler):
             postings = sorted(postings, key=lambda x: x[1])
             # ================================================
             print("Postings list image search", postings)
-           
-          
+
         if len(qtxt) == 0:
             print("Empty text query")
             postings_txt = None
@@ -281,7 +276,7 @@ def main():
         port = inventory.BASE_PORT
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web, dict(model=model)),
-             (r'/upload', UploadHandler),
+            (r'/upload', UploadHandler),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
         ], **SETTINGS))
@@ -320,4 +315,19 @@ def main():
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', level=logging.INFO)
+    parser = argparse.ArgumentParser(description='Image search engine')
+    parser.add_argument('--test', type=bool, default=True,
+                        help='is test or prod')
+
+    args = parser.parse_args()
+    if args.test:
+        data_path = inventory.test_data_path
+    else:
+        data_path = inventory.prod_data_path
+
+    inventory.DOCS_STORE = os.path.join(data_path, "docs/docshard_%d.p")
+    inventory.TREE_STORE = os.path.join(data_path, "features")
+    inventory.TEXT_STORE = os.path.join(data_path, "indices")
+    inventory.IMAGES_STORE = os.path.join(data_path, "images")
+    print(inventory.DOCS_STORE, inventory.TREE_STORE, inventory.TEXT_STORE, inventory.IMAGES_STORE)
     main()

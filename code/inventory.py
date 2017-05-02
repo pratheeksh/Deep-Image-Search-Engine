@@ -1,6 +1,5 @@
 import getpass
 import hashlib
-import os
 
 MAX_PORT = 49123
 MIN_PORT = 10000
@@ -10,8 +9,7 @@ HOSTNAME = "http://localhost"
 # HOSTNAME = "http://ec2-54-200-53-153.us-west-2.compute.amazonaws.com"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT
-
-NUM_INDEX_SERVERS = 25
+NUM_INDEX_SERVERS = 10
 NUM_TXT_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
 MAX_NUM_RESULTS = 30
@@ -25,22 +23,15 @@ WORKER_THREAD_COUNT = 8
 WORKER_PORTS = []
 IM_RESIZE_DIMS = (227, 227)
 WEBAPP_PATH = "static/"
+test_data_path = "data/biggertest"
+prod_data_path = "data/FlickrData2"
 DOCS_STORE = ""
 TREE_STORE = ""
 TEXT_STORE = ""
 IMAGES_STORE = ""
 
 
-def init_ports(data_path):
-    try:
-        DOCS_STORE = str(os.path.join(data_path, "docs/docshard_%d.p"))
-        TREE_STORE = os.path.join(data_path, "features")
-        TEXT_STORE = os.path.join(data_path, "indices")
-        IMAGES_STORE = os.path.join(data_path, "images")
-    except OSError:
-        "Wrong directory structure"
-        exit(1)
-
+def init_ports():
     for i in range(NUM_INDEX_SERVERS):
         port = BASE_PORT + i + 1
         INDEX_SERVER_PORTS.append(port)
@@ -58,8 +49,3 @@ def init_ports(data_path):
     print("Doc server ports: {}".format(DOC_SERVER_PORTS))
     print("Worker ports: {}".format(WORKER_PORTS))
     print("Index txt server ports: {}".format(TXT_INDEX_SERVER_PORTS))
-
-    print("DOCS_STORE:", DOCS_STORE)
-    print("TREE_STORE:", TREE_STORE)
-    print("TEXT_STORE:", TEXT_STORE)
-    print("IMAGES_STORE:", IMAGES_STORE)
