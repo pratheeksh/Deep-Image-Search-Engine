@@ -169,14 +169,14 @@ Run coordinator to create kd-trees and create feature index shards.
  ```
  ### Note to those who want to scale
 This MapReduce framework has issues. There is a [nasty tornado timeout bug](https://github.com/tornadoweb/tornado/issues/1753) that won't let you run this code for larger datasets. So, when we wrote a quick script that processes files in batches and generates kd-tree pickles.
-``shell
+```shell
  #create pickles
  cd PATH_TO_FEAT_VECS
  python ../../../code/indexer-mr/kdtree_jobs/seq.py
  
  #go back to root directory
  cd ../../.. 
- ``
+ ```
 
 5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
