@@ -167,7 +167,7 @@ Run coordinator to create kd-trees and create feature index shards.
  python -m code.indexer-mr.coordinator --mapper_path code/indexer-mr/kdtree_jobs/mapper.py  
  --reducer_path code/indexer-mr/kdtree_jobs/reducer.py --job_path PATH_TO_FEAT_VECS --num_reducers 10
  ```
- ### Note to those who want to scale
+*Note to those who want to scale*
 This MapReduce framework has issues. There is a [nasty tornado timeout bug](https://github.com/tornadoweb/tornado/issues/1753) that won't let you run this code for larger datasets. So, when we wrote a quick script that processes files in batches and generates kd-tree pickles.
 ```shell
  #create pickles
