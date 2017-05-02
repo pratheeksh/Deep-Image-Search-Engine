@@ -135,6 +135,7 @@ $(function() {
                 $("#delay").text(delay);
                 $("#delay").show()
 
+            $("#file1").replaceWith($("#file1").val('').clone(true));
             },
             // handle error
             error: function(error) {
