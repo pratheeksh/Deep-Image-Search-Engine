@@ -3,12 +3,12 @@ import logging
 import math
 import os
 import pickle
-import urllib, random , string
+import urllib
 from collections import defaultdict
 from itertools import chain
 from io import BytesIO
 import numpy as np
-import requests
+import argparse
 import tornado
 from PIL import Image
 from tornado import web, gen, process, httpserver, httpclient, netutil
@@ -18,7 +18,15 @@ from code import inventory
 from util.image_processing_fns import resizeImageAlt, convertImageToArray, getImage
 from util.utils import convert_array_to_Variable, load_model, is_black
 from . import index, doc, text_index_servers
-inventory.init_ports()
+
+
+parser = argparse.ArgumentParser(description='Image search engine')
+parser.add_argument('--data_path', type=str, default='..data/FlickrData2/',
+                    help='location of the data source')
+
+args = parser.parse_args()
+
+inventory.init_ports(args.data_path)
 index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERVER_PORTS]
 txt_index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.TXT_INDEX_SERVER_PORTS]
 doc_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.DOC_SERVER_PORTS]
