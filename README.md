@@ -174,10 +174,14 @@ To list the keys in each dict
 ```shell
 python -m code.feature-extractor.check_key_conversion
 ```
-To retrieve the image index from the 'K'th row of the M'th numpy array 
+
+To retrieve the image index from the 'K'th row of the M'th numpy array.
+
 image index = M * MAX_IMS_PER_MATRIX + K + 1
 
-4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
+Step 3: 
+
+Build KD-trees from feature vectors stored in FEAT_PATH. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
 Start workers to run the map reduce job.
 
 ```shell
@@ -201,13 +205,16 @@ This MapReduce framework has issues. There is a [nasty tornado timeout bug](http
  cd ../../.. 
  ```
 
-5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
+Step 4: 
+
+Create doc shards which map a document id to its metadata like (filename, title, text, tags, flickr_url, image_url) from the metadata folder. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
-python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
+python -m code.create_doc_shards --data_path METADATA_PATH --doc_path DOC_PATH
 ```
+
 6. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
 ```shell
-python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
+python -m code.indexer_text --data_path METADATA_PATH --idx_path IDX_PATH
 ```
 ## Issues we ran into
 1. https://github.com/tornadoweb/tornado/issues/1753

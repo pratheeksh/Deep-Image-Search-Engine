@@ -75,8 +75,8 @@ def save_doc_shards(doc_shards, doc_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/metadata', type=str)
-    parser.add_argument('--doc_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/docs', type=str)
+    parser.add_argument('--data_path', default='data/biggertest/metadata', type=str)
+    parser.add_argument('--doc_path', default='data/biggertest/docs', type=str)
     opt = parser.parse_args()
     print("-------------------Settings-----------------------")
     pprint.pprint(opt)
