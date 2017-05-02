@@ -1,4 +1,4 @@
- [An Image Search Engine](#An Image Search Engine)
+ [An Image Search Engine](#an-image-search-engine)
   * [Dependencies](#dependencies)
   * [To run the search engine](#to-run-the-search-engine)
   * [Getting flickr data](#getting-flickr-data)
