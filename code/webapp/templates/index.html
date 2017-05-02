@@ -8,7 +8,8 @@
   <meta name="author" content="">
 
   <title>Image Search</title>
-
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="static/upload.js"></script>
   <!-- stylesheets -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <!-- <link href="static/main.css" rel="stylesheet"> -->
@@ -16,14 +17,22 @@
 </head>
 
 <body>
-<!-- <form>
-    <input type="text" id="imagename" value="" />
-    <input type="text" id="textsearch" value="" />
-    <input type="button" id="btn" value="GO" />
-</form> -->
+
 <div class="container">
-  <form>
     <div class="form-group">
+    <form enctype="multipart/form-data" action="/upload" method="post">
+       <div class="form-group">
+          <label for="file1">Browse and Upload:</label>
+           <input type="file" name="file1"  />
+          <br>
+           <input type="submit" class="btn btn-primary" value="upload"  />
+           <br><br>
+            <div class="col-md-12 text-center">
+            <p style="display: none;" id="txt-upload" class="status bg-info"></p>
+            </div>
+        </div> 
+     </form>
+      <div class="form-group">
       <label for="imagename">Image URL:</label>
       <input type="text" class="form-control" id="imagename">
     </div>
@@ -34,15 +43,18 @@
     <div class="form-group">
       <button type="button" class="btn btn-primary" id="btn">Search</button>
     </div>
-  </form>
-</div>
+ </div>
+
 
  <script type="text/javascript">
+
+
         document.getElementById('btn').onclick = function() {
            console.log("Button clicked")
             var val = document.getElementById('imagename').value,
                 src = val,
                 img = document.createElement('img');
+
 
             img.src = src;
             img.id = 'uploadedimage';
@@ -54,6 +66,43 @@
             if (src) {
               div.appendChild(img);
             }
+
+        function readURL(input) {
+            console.log(input)
+            var filesrc
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                 src = e.target.result
+                 filesrc = src
+                 img = document.createElement('img');
+                 img.id = 'uploadedimage';
+                 img.src = src;
+                 img.width = 200;
+                 img.height = 200;
+                 var div = document.getElementById('displayimage');
+                 div.innerHTML="";
+                 div.appendChild(img);
+                 //uploadToServer(src)
+                 }
+                reader.readAsDataURL(input.files[0]);
+                }
+          }
+          function uploadToServer(src){
+             $.ajax({
+              type: "GET",
+              url: "/upload",
+              data : { img : src },
+              // handle success
+              success: function(jsonResponse) {
+              },
+              // handle error
+              error: function(error) {
+                console.log(error);
+              }
+            });
+
+
         }
     </script>
 <div class="container">

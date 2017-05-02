@@ -5,29 +5,81 @@ console.log( "ready!" );
 $("#searching").hide();
 $("#results-table").hide();
 $("#error").hide();
-
+$("#txt-upload").hide();
 
 $(function() {
 
-  // sanity check
-  console.log( "ready123!" );
-  // remove active class
-  $(".img").removeClass("active")
-  
-  // image click
-  $(".img").click(function() {
+    // Variable to store your files
+	var files;
+	var filename="Empty";
+   // Add events
+    $("#txt-upload").empty();
+	$('input[type=file]').on('change', prepareUpload);
+	$('form').on('submit', uploadFiles);
 
+	// Grab the files and set them to our variable
+	function prepareUpload(event)
+	{
+
+		files = event.target.files;
+		console.log(files)
+	}
+
+	// Catch the form submit and upload the files
+	function uploadFiles(event)
+	{
+	$("#txt-upload").show();
+	 $("#txt-upload").text("Uploading the image to server... Please wait " );
+		event.stopPropagation(); // Stop stuff happening
+        event.preventDefault(); // Totally stop stuff happening
+
+        // START A LOADING SPINNER HERE
+
+        // Create a formdata object and add the files
+		var data = new FormData();
+		$.each(files, function(key, value)
+		{
+			data.append(key, value);
+		});
+
+        $.ajax({
+            url: 'upload?files',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'text',
+            processData: false, // Don't process the files
+            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+            success: function(jsonResponse)
+            {
+            filename = jsonResponse
+
+
+            $("#txt-upload").text("Success Image stored as " + jsonResponse);
+            console.log("Image stored as ", jsonResponse)
+
+            },
+            error: function(response)
+            {
+            	console.log('ERRORS: ' + response);
+            }
+        });
+    }
+
+  // button click
+  $("#btn").click(function() {
+    var start = new Date().getTime();
     // empty/hide results
     $("#results").empty();
     $("#results-table").hide();
-    $("#error").hide();
+    $("#results-heading").hide();
+    $("#error").empty();
+    $("#delay").empty();
 
-    // add active class to clicked picture
-    $(this).addClass("active")
 
-    // grab image url
-    var image = $(this).attr("src")
     console.log(image)
+    var text = $('#textsearch').val()
+    console.log(text)
 
     // show searching text
     $("#searching").show();
@@ -78,6 +130,7 @@ $(function() {
     $("#delay").empty();
 
 
+
     // $("#uploadedimage").empty()
 
     // add active class to clicked picture
@@ -89,13 +142,15 @@ $(function() {
       console.log("Changing image")
       image = 'http://'
     }
-    console.log(image)
-    var text = $('#textsearch').val()
-    console.log(text)
 
-    // show searching text
-    $("#searching").show();
-    console.log("searching...")
+    // check if anything was uploaded
+    if (filename) {
+      if(image != 'http://') {
+            filename = "Empty"
+            console.log("Image url given precendence to Uploaded image")
+      }
+      console.log("Uploaded file was saved here ", filename)
+    }
 
 
     // ajax request
@@ -103,7 +158,9 @@ $(function() {
       type: "GET",
       url: "/search",
       data : { img : image,
-                  txt : text },
+               txt : text, 
+               load : filename},
+
       // handle success
       success: function(jsonResponse) {
         console.log("Success something received")

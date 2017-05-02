@@ -3,7 +3,7 @@ import logging
 import math
 import os
 import pickle
-import urllib
+import urllib, random , string
 from collections import defaultdict
 from itertools import chain
 from io import BytesIO
@@ -15,8 +15,8 @@ from tornado import web, gen, process, httpserver, httpclient, netutil
 from tornado.ioloop import IOLoop
 from functools import lru_cache
 from code import inventory
-from util.image_processing_fns import resizeImageAlt, convertImageToArray
-from util.utils import convert_array_to_Variable, load_model
+from util.image_processing_fns import resizeImageAlt, convertImageToArray, getImage
+from util.utils import convert_array_to_Variable, load_model, is_black
 from . import index, doc, text_index_servers
 inventory.init_ports()
 index_servers = [inventory.HOSTNAME + ":" + str(p) for p in inventory.INDEX_SERVER_PORTS]
@@ -34,23 +34,41 @@ SETTINGS = {
 log = logging.getLogger(__name__)
 
 
+counter = 0
+class UploadHandler(tornado.web.RequestHandler):  #For Upload
+    @gen.coroutine
+    def post(self):
+        print("Somthing recieved")
+        file1 = self.request.files['0']
+        filename = file1[0]['filename']
+        filebody = file1[0]['body']
+        with open('code/webapp/static/uploads/{}'.format(filename), 'wb') as f:
+                f.write(filebody)
+        f.close()
+        print("File writen to uploads/", file1[0]['filename'])
+        self.write(filename)
+
+
+
 class Web(web.RequestHandler):
+
     def initialize(self, model):
         self.model = model
 
     def head(self):
         self.finish()
     @gen.coroutine
-    def get_feature_vector(self, image_url):
-        try:
-            http = httpclient.AsyncHTTPClient()
-            result = yield http.fetch(image_url)
-            im2 = Image.open(BytesIO(result.body))
-            #im2 = Image.open(requests.get(image_url, stream=True).raw)
-        except OSError:
-            ##print something on the webpage
-            print("error, cant process image")
-            return
+
+    def get_feature_vector(self, image_url, im2 = None):
+        if im2 == None :
+            try:
+                http = httpclient.AsyncHTTPClient()
+                result = yield http.fetch(image_url)
+                im2 = Image.open(BytesIO(result.body))
+                #im2 = Image.open(requests.get(image_url, stream=True).raw)
+            except OSError:
+                print("error, cant process image")
+                return
         im2 = resizeImageAlt(im2, inventory.IM_RESIZE_DIMS)
         im2 = convertImageToArray(im2)
         im2_np = np.transpose(np.array(im2), (2, 0, 1))
@@ -60,18 +78,28 @@ class Web(web.RequestHandler):
     @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
+
         q = self.get_argument('img', None)
         qtxt = self.get_arguments('txt', True)[0].split()
+        qupload = self.get_argument('load', "Empty")
+        print("Upload image parameter for Rose is  ", qupload)  #For Upload
+        if qupload != "Empty"  :  #For Upload
+            try:
+                qupload = Image.open('code/webapp/static/uploads/{}'.format(qupload)) #For Upload
+                print("Loaded image from uploads", qupload)
+            except:
+                print("error, cant process image")
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
         print("Text  query is: {}".format(qtxt))
-
-        if q == 'http://':
+        if q == 'http://' and qupload == "Empty":
             print("Empty image query")
             postings = None
         else:
-            feature_vector = yield self.get_feature_vector(str(q))
-
+            if qupload != "Empty" :  #For Upload
+                feature_vector = yield self.get_feature_vector(image_url = None, im2 = qupload)
+            else :
+                feature_vector = yield self.get_feature_vector(str(q))
             # Fetch postings from image index servers
             http = httpclient.AsyncHTTPClient()
             responses = yield [
@@ -82,8 +110,23 @@ class Web(web.RequestHandler):
             postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                               key=lambda x: x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
+            
+            # Check if any of the returned images are black, and if they are
+            # boost the distance by 100 to avoid showing as a result
+            # COMMENT OUT between ======= to revert to old version
+            # ===========================================
+            for p in postings:
+                fname = str(p[0]) + '.jpg'
+                im = getImage(fname, inventory.IMAGES_STORE)
+                b = is_black(im)
+                if b:
+                    print("Boosting image score")
+                    p[1] += 100
+            postings = sorted(postings, key=lambda x: x[1])
+            # ================================================
             print("Postings list image search", postings)
-
+           
+          
         if len(qtxt) == 0:
             print("Empty text query")
             postings_txt = None
@@ -176,11 +219,6 @@ class Web(web.RequestHandler):
         # Batch requests to doc servers
         server_to_doc_ids = defaultdict(list)
         doc_id_to_result_ix = {}
-        # for i, (_, doc_name) in enumerate(postings):
-        #     doc_id = int(doc_name.split('.')[0])
-        #     doc_id_to_result_ix[doc_id] = i
-        #     server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append(doc_id)
-        # responses = yield self._get_doc_server_futures( server_to_doc_ids)
 
         for i, (doc_id, _) in enumerate(postings):
             doc_id_to_result_ix[doc_id] = i
@@ -221,11 +259,13 @@ class IndexDotHTMLAwareStaticFileHandler(web.StaticFileHandler):
 
 def main():
     num_procs = inventory.NUM_INDEX_SERVERS + inventory.NUM_TXT_INDEX_SERVERS + inventory.NUM_DOC_SERVERS + 1
+    model = None
     try:
         model = pickle.load(open('data/model.p', 'rb'))
     except FileNotFoundError:
         model = load_model()
         pickle.dump(model, open('data/model.p', 'wb'))
+
     log.info('Model loaded %s', type(model))
     task_id = process.fork_processes(num_procs, max_restarts=5)
 
@@ -233,6 +273,7 @@ def main():
         port = inventory.BASE_PORT
         app = httpserver.HTTPServer(tornado.web.Application([
             (r'/search', Web, dict(model=model)),
+             (r'/upload', UploadHandler),
             (r'/(.*)', tornado.web.StaticFileHandler, {"path": SETTINGS["template_path"],
                                                        "default_filename": "index.html"})
         ], **SETTINGS))
