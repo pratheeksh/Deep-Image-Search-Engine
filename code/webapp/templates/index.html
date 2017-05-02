@@ -68,12 +68,12 @@
                 }
             }
         }
-
-        document.getElementById('file1').onclick = function() {
+	document.getElementById('file1').onchange = function() {
             var input = this
             console.log(input)
             // var filesrc
             if (input.files && input.files[0]) {
+                console.log("Some file got uploaded")
                 var reader = new FileReader();
                 reader.onload = function (e) {
                  src = e.target.result
@@ -88,12 +88,13 @@
                  div.innerHTML="";
                  console.log("After clearing" + div.innerHTML)
                  div.appendChild(img);
-		     div.style.display = "block";
+                     div.style.display = "block";
                  //uploadToServer(src)
                  }
                 reader.readAsDataURL(input.files[0]);
                 }
           }
+
           function uploadToServer(src){
              $.ajax({
               type: "GET",
