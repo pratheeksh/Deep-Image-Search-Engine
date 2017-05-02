@@ -87,6 +87,7 @@
                  var div = document.getElementById('displayimage');
                  div.innerHTML="";
                  div.appendChild(img);
+		 div.style.display = "block";
                  //uploadToServer(src)
                  }
                 reader.readAsDataURL(input.files[0]);
