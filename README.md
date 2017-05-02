@@ -150,13 +150,13 @@ See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy 
 ## How to build the full dataset
 
 The root directory of the data is assumed to have the following structure 
-    $ROOT_DATA_DIR/
-        images/
-        metadatata/
-        images_numpy/ (Empty folder which will later be populated with numpy arrays of images)
-        features/ (Empty folder which will later be populated with feature vectors of images)
-        indices/ (Empty folder which will later be populated with text indices)
-        docs/ (Empty fodler which will later be populated with doc shards)
+* $ROOT_DATA_DIR/
+   - images/
+   - metadatata/
+   - images_numpy/ (Empty folder which will later be populated with numpy arrays of images)
+   - features/ (Empty folder which will later be populated with feature vectors of images)
+   - indices/ (Empty folder which will later be populated with text indices)
+   - docs/ (Empty fodler which will later be populated with doc shards)
 
 Step 1:
 Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
