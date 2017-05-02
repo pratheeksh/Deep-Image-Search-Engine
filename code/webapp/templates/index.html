@@ -50,22 +50,22 @@
 
 
         document.getElementById('btn').onclick = function() {
-           console.log("Button clicked")
-            var val = document.getElementById('imagename').value,
+            var val = document.getElementById('imagename').value
+            if (val) {
                 src = val,
                 img = document.createElement('img');
-
-
-            img.src = src;
-            img.id = 'uploadedimage';
-            img.width = 200;
-            img.height = 200;
-            var div = document.getElementById('displayimage');
-            div.innerHTML="";
-            console.log(img.src)
-            if (src) {
-              div.appendChild(img);
+                img.src = src;
+                img.id = 'uploadedimage';
+                img.width = 200;
+                img.height = 200;
+                var div = document.getElementById('displayimage');
+                div.innerHTML="";
+                console.log(img.src)
+                if (src) {
+                  div.appendChild(img);
+                }
             }
+        }
 
         function readURL(input) {
             console.log(input)
