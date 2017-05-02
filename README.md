@@ -1,4 +1,4 @@
- [An Image Search Engine](#An Image Search Engine)
+ [An Image Search Engine](#an-image-search-engine)
   * [Dependencies](#dependencies)
   * [To run the search engine](#to-run-the-search-engine)
   * [Getting flickr data](#getting-flickr-data)
@@ -149,23 +149,33 @@ See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy 
 
 ## How to build the full dataset
 
-1. Assumes images are stored in the image folder and their corresponding metadata is in the metadata folder
-2. Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
+The root directory of the data is assumed to have the following structure 
+* $ROOT_DATA_DIR/
+   - images/
+   - metadatata/
+   - images_numpy/ (Empty folder which will later be populated with numpy arrays of images)
+   - features/ (Empty folder which will later be populated with feature vectors of images)
+   - indices/ (Empty folder which will later be populated with text indices)
+   - docs/ (Empty fodler which will later be populated with doc shards)
+
+Step 1:
+Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
 ```shell
 python -m util.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
-3. Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
+Step 2:
+Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
 ```shell
 python -m code.feature-extractor.cnn_feature_extractor --npy_path NPY_PATH --feat_path FEAT_PATH
 ```
+Checking code to test if the above commands worked well: 
 To list the keys in each dict
 ```shell
 python -m code.feature-extractor.check_key_conversion
 ```
-Note: To convert from matrix number and row index to image number:
-
-image number = matrix_number * MAX_IMS_PER_MATRIX + row index + 1
+To retrieve the image index from the 'K'th row of the M'th numpy array 
+image index = M * MAX_IMS_PER_MATRIX + K + 1
 
 4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
 Start workers to run the map reduce job.
