@@ -1,4 +1,16 @@
-# SEA-Project
+ [An Image Search Engine](#An Image Search Engine)
+  * [Dependencies](#dependencies)
+  * [To run the search engine](#to-run-the-search-engine)
+  * [Getting flickr data](#getting-flickr-data)
+    + [Usage](#usage)
+  * [Converting images to numpy](#converting-images-to-numpy)
+  * [Feature extraction](#feature-extraction)
+  * [Searching images](#searching-images)
+  * [Test data](#test-data)
+  * [How to build the full dataset](#how-to-build-the-full-dataset)
+  * [Issues we ran into](#issues-we-ran-into)
+  * [Successes yay!](#successes-yay)
+# An Image Search Engine
 
 This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
 
@@ -169,7 +181,7 @@ Run coordinator to create kd-trees and create feature index shards.
  ```
 **Note to those who want to scale**
 
-This MapReduce framework has issues. There is a [nasty tornado timeout bug](https://github.com/tornadoweb/tornado/issues/1753) that won't let you run this code for larger datasets. So, when we wrote a quick script that processes files in batches and generates kd-tree pickles.
+This MapReduce framework has issues. There is a [nasty tornado timeout bug](https://github.com/tornadoweb/tornado/issues/1753) that won't let you run this code for larger datasets. So, we wrote a quick script that processes files in batches and generates kd-tree pickles.
 ```shell
  #create pickles
  cd PATH_TO_FEAT_VECS
