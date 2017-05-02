@@ -316,18 +316,15 @@ def main():
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', level=logging.INFO)
     parser = argparse.ArgumentParser(description='Image search engine')
-    parser.add_argument('--test' ,  action='store_true')
+    parser.add_argument('--data_path',  default="data/FlickrData2")
 
     args, lelftovers = parser.parse_known_args()
-    if args.test is not None:
-        data_path = inventory.test_data_path
 
-    else:
-        data_path = inventory.prod_data_path
+    assert(os.path.isdir(args.data_path))
 
-    inventory.DOCS_STORE = os.path.join(data_path, "docs/docshard_%d.p")
-    inventory.TREE_STORE = os.path.join(data_path, "features")
-    inventory.TEXT_STORE = os.path.join(data_path, "indices")
-    inventory.IMAGES_STORE = os.path.join(data_path, "images")
+    inventory.DOCS_STORE = os.path.join(args.data_path, "docs/docshard_%d.p")
+    inventory.TREE_STORE = os.path.join(args.data_path, "features")
+    inventory.TEXT_STORE = os.path.join(args.data_path, "indices")
+    inventory.IMAGES_STORE = os.path.join(args.data_path, "images")
     print(inventory.DOCS_STORE, inventory.TREE_STORE, inventory.TEXT_STORE, inventory.IMAGES_STORE)
     main()
