@@ -2,7 +2,6 @@ import json
 import logging
 import math
 import os
-import base64
 import pickle
 import urllib, random , string
 from collections import defaultdict
@@ -34,6 +33,7 @@ SETTINGS = {
 }
 log = logging.getLogger(__name__)
 
+
 counter = 0
 class UploadHandler(tornado.web.RequestHandler):  #For Upload
     @gen.coroutine
@@ -49,6 +49,7 @@ class UploadHandler(tornado.web.RequestHandler):  #For Upload
         self.write(filename)
 
 
+
 class Web(web.RequestHandler):
 
     def initialize(self, model):
@@ -56,17 +57,8 @@ class Web(web.RequestHandler):
 
     def head(self):
         self.finish()
-
-
     @gen.coroutine
-    def get_image_from_base64(self, base64image):
-        print("Received a base64 image from the server")
-        uploaded_img = base64image.split(',')[1]
-        imgdata = base64.b64decode(uploaded_img)
-        im2 = Image.open(BytesIO(imgdata))
-        return im2
 
-    @gen.coroutine
     def get_feature_vector(self, image_url, im2 = None):
         if im2 == None :
             try:
@@ -83,8 +75,6 @@ class Web(web.RequestHandler):
         im2 = convert_array_to_Variable(np.array([im2_np]))
         feature_vector = self.model(im2)
         return feature_vector.data.numpy().reshape((4096,))
-
-
     @lru_cache(maxsize=1024)
     @gen.coroutine
     def get(self):
@@ -120,6 +110,7 @@ class Web(web.RequestHandler):
             postings = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses]),
                               key=lambda x: x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
+            
             # Check if any of the returned images are black, and if they are
             # boost the distance by 100 to avoid showing as a result
             # COMMENT OUT between ======= to revert to old version
@@ -132,8 +123,10 @@ class Web(web.RequestHandler):
                     print("Boosting image score")
                     p[1] += 100
             postings = sorted(postings, key=lambda x: x[1])
+            # ================================================
             print("Postings list image search", postings)
-
+           
+          
         if len(qtxt) == 0:
             print("Empty text query")
             postings_txt = None
@@ -226,11 +219,6 @@ class Web(web.RequestHandler):
         # Batch requests to doc servers
         server_to_doc_ids = defaultdict(list)
         doc_id_to_result_ix = {}
-        # for i, (_, doc_name) in enumerate(postings):
-        #     doc_id = int(doc_name.split('.')[0])
-        #     doc_id_to_result_ix[doc_id] = i
-        #     server_to_doc_ids[self._get_server_for_doc_id(doc_id)].append(doc_id)
-        # responses = yield self._get_doc_server_futures( server_to_doc_ids)
 
         for i, (doc_id, _) in enumerate(postings):
             doc_id_to_result_ix[doc_id] = i
