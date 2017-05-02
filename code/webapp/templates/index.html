@@ -58,7 +58,9 @@
                 img.width = 200;
                 img.height = 200;
                 var div = document.getElementById('displayimage');
+                console.log("Before clearing" + div.innerHTML)
                 div.innerHTML="";
+                console.log("After clearing" + div.innerHTML)
                 console.log(img.src)
                 if (src) {
                   div.appendChild(img);
@@ -84,9 +86,11 @@
                  img.width = 200;
                  img.height = 200;
                  var div = document.getElementById('displayimage');
+                 console.log("Before clearing" + div.innerHTML)
                  div.innerHTML="";
+                 console.log("After clearing" + div.innerHTML)
                  div.appendChild(img);
-		 div.style.display = "block";
+		     div.style.display = "block";
                  //uploadToServer(src)
                  }
                 reader.readAsDataURL(input.files[0]);
