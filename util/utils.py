@@ -8,9 +8,10 @@ import os
 import sys
 from PIL import Image as PImage
 import re
-import pprint
+import pprint, logging
 from util.image_processing_fns import getImage, convertImageToArray, showImage
 
+log = logging.getLogger(__name__)
 def is_black(image, threshold=0.9):
     image = convertImageToArray(image)
     try:
@@ -22,7 +23,7 @@ def is_black(image, threshold=0.9):
     image = np.sum(image, axis=1)
     black = image < 15
     percent_black = black.sum() / black.shape[0]
-    print("Percent black: {0:.4f}".format(percent_black))
+    log.info("Percent black: {0:.4f}".format(percent_black))
     if percent_black > threshold:
         return True
     return False

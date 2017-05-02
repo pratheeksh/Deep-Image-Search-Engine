@@ -61,6 +61,9 @@ python -m code.webapp.start
 ```
 and navigate to the port that the frontend is listening on (this will be printed to standard out once everything has started up).
 
+Note
+The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to alocal directory. Subsequent startups would load the pickled model file.
+
 ## Getting flickr data
 
 flickr_scaper.py parses the XML files available a part of the MVSO dataset, checks if an image exists for a datapoint, and if it does, downloads the images and saves the metadat
@@ -216,6 +219,15 @@ python -m code.create_doc_shards --data_path METADATA_PATH --doc_path DOC_PATH
 ```shell
 python -m code.indexer_text --data_path METADATA_PATH --idx_path IDX_PATH
 ```
+
+To run the search engine,from the root directory, run
+```shell
+python -m code.webapp.start
+```shell
+
+Note
+The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to alocal directory. Subsequent startups would load the pickled model file.
+
 ## Issues we ran into
 1. https://github.com/tornadoweb/tornado/issues/1753
 2. Pytorch set up on linserv - core dumped due to gcc version. Problem caused by AMD instead of Intel CPUs which stuggle to work with pytorch. Have to install pytorch from source. 

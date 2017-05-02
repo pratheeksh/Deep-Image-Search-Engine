@@ -38,14 +38,14 @@ counter = 0
 class UploadHandler(tornado.web.RequestHandler):  #For Upload
     @gen.coroutine
     def post(self):
-        print("Somthing recieved")
+        log.info("Somthing recieved")
         file1 = self.request.files['0']
         filename = file1[0]['filename']
         filebody = file1[0]['body']
         with open('code/webapp/static/uploads/{}'.format(filename), 'wb') as f:
                 f.write(filebody)
         f.close()
-        print("File writen to uploads/", file1[0]['filename'])
+        log.info("File writen to uploads/{}".format(file1[0]['filename']))
         self.write(filename)
 
 
@@ -67,7 +67,7 @@ class Web(web.RequestHandler):
                 im2 = Image.open(BytesIO(result.body))
                 #im2 = Image.open(requests.get(image_url, stream=True).raw)
             except OSError:
-                print("error, cant process image")
+                log.info("error, cant process image")
                 return
         im2 = resizeImageAlt(im2, inventory.IM_RESIZE_DIMS)
         im2 = convertImageToArray(im2)
@@ -82,18 +82,18 @@ class Web(web.RequestHandler):
         q = self.get_argument('img', None)
         qtxt = self.get_arguments('txt', True)[0].split()
         qupload = self.get_argument('load', "Empty")
-        print("Upload image parameter for Rose is  ", qupload)  #For Upload
+        log.info("Upload image parameter is {}".format(qupload))  #For Upload
         if qupload != "Empty"  :  #For Upload
             try:
                 qupload = Image.open('code/webapp/static/uploads/{}'.format(qupload)) #For Upload
-                print("Loaded image from uploads", qupload)
+                log.info("Loaded image from uploads {}".format(foqupload))
             except:
-                print("error, cant process image")
+                log.info("error, cant process image")
         # Lowercase query
         qtxt = [word.lower() for word in qtxt]
-        print("Text  query is: {}".format(qtxt))
+        log.info("Text  query is: {}".format(qtxt))
         if q == 'http://' and qupload == "Empty":
-            print("Empty image query")
+            log.info("Empty image query")
             postings = None
         else:
             if qupload != "Empty" :  #For Upload
@@ -120,15 +120,15 @@ class Web(web.RequestHandler):
                 im = getImage(fname, inventory.IMAGES_STORE)
                 b = is_black(im)
                 if b:
-                    print("Boosting image score")
+                    log.info("Boosting image score")
                     p[1] += 100
             postings = sorted(postings, key=lambda x: x[1])
             # ================================================
-            print("Postings list image search", postings)
+            log.info("Postings list image search {}".format(postings))
            
           
         if len(qtxt) == 0:
-            print("Empty text query")
+            log.info("Empty text query")
             postings_txt = None
         else:
             # Fetch postings from text index servers if txt query exists
@@ -141,10 +141,10 @@ class Web(web.RequestHandler):
             postings_txt = sorted(chain(*[json.loads(r.body.decode())['postings'] for r in responses_txt]),
                                   key=lambda x: -x[1])[:NUM_RESULTS]
             # postings have the format {"postings": [[285, 53.61725232526324]} doc_id, score
-            print("Postings text search", postings_txt)
+            log.info("Postings text search {}".format(postings_txt))
 
         if postings is None and postings_txt is None:
-            print("Empty query")
+            log.info("Empty query")
             exit(1)
         elif postings is None:
             postings = postings_txt
@@ -189,7 +189,7 @@ class Web(web.RequestHandler):
                 if len(postings) > 4:
                     break
             ims_to_add = math.ceil((TO_DISPLAY - len(postings)) / 2.0)
-            print("Ims to add: {}".format(ims_to_add))
+            log.info("Ims to add: {}".format(ims_to_add))
             for k, i in enumerate(ims):
                 postings.append([i[0], i[1]])
                 labels.append(i[2])
@@ -201,20 +201,20 @@ class Web(web.RequestHandler):
                 if len(postings) >= TO_DISPLAY:
                     break
 
-            print("Merged lists, long")
-            print(postings)
-            print(labels)
-            print("both: {}".format(both))
-            print("text: {}".format(text))
-            print("ims: {}".format(ims))
+            log.info("Merged lists, long")
+            log.info(postings)
+            log.info(labels)
+            log.info("both: {}".format(both))
+            log.info("text: {}".format(text))
+            log.info("ims: {}".format(ims))
 
         if len(postings) > TO_DISPLAY:
             postings = postings[:TO_DISPLAY]
             labels = labels[:TO_DISPLAY]
 
-        print("Merged lists")
-        print(postings)
-        print(labels)
+        log.info("Merged lists")
+        log.info("Postings ids {}".format(postings))
+        log.info("Sources : {}".format(labels))
 
         # Batch requests to doc servers
         server_to_doc_ids = defaultdict(list)
@@ -231,7 +231,7 @@ class Web(web.RequestHandler):
         for response in responses:
             for result in json.loads(response.body.decode())['results']:
                 result_list[doc_id_to_result_ix[int(result['doc_id'])]] = result
-        log.info("Retrieved %d documents", len(result_list))
+        log.info("Retrieved {} documents".format(len(result_list)))
         self.write(json.dumps({'num_results': len(result_list), 'results': result_list}))
 
     def _get_doc_server_futures(self, server_to_doc_ids):
@@ -241,7 +241,7 @@ class Web(web.RequestHandler):
             query_string = urllib.parse.urlencode({'ids': ','.join([str(x[0]) for x in doc_ids]),
                                                    'src': ','.join([x[1] for x in doc_ids]),
                                                    })
-            print(query_string)
+            log.info(query_string)
             futures.append(http.fetch('%s/doc?%s' % (server, query_string)))
         return futures
 
