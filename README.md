@@ -14,7 +14,7 @@
 
 This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
 
-![ImageSearch](data/ImageSearch.png)
+![ImageSearch](data/ImageSearch2.png)
 
 ## Dependencies
 - Python 3
@@ -39,9 +39,10 @@ This assumes that all of the data has been prepared. See the section **How to bu
 
 Point the search engine to the images, doc shards and index shards with the following variables in `inventory.py`
 
-- `DOCS_STORE`: this folder should hold all the doc shards in the format `dochard_0.p`
+- `DOCS_STORE`: this folder should hold all the doc shards in the format `docshard_0.p`
 - `TREE_STORE` : this folder should hold all the kd tree indices of feature vectors in the format `0.out`
 - `TEXT_STORE` : this folder should hold all the text indices and tf-df index in the format `index_txt_0.p` and `tf_idf_index.p`
+- `IMAGES_STORE`: this folder should hold all the images
 
 Make sure that `NUM_DOC_SERVERS`, `NUM_INDEX_SERVERS`, and `NUM_TXT_INDEX_SERVERS` match the number of shards stored in the corresponding folders above
 
