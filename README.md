@@ -68,7 +68,7 @@ The initial run from the root directory would take  a couple of minutes, because
 
 ## Getting flickr data
 
-flickr_scaper.py parses the XML files available a part of the MVSO dataset, checks if an image exists for a datapoint, and if it does, downloads the images and saves the metadat
+flickr_scaper.py parses the XML files available a part of the MVSO dataset, checks if an image exists for a datapoint, and if it does, downloads the images and saves the metadata.
 
 Each example is assigned a unique integer key. This key is the name of the image file and the key to index into the metadata
 Metadata is stored as a pickled python dict, images are saved as jpgs. Below is an example of the metadata stored:
@@ -145,12 +145,10 @@ KD trees are used to store and efficiently search for similar feature vectors. W
 See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy dataset of 2.5k examples. This larger dataset fixes the missing title in the metadata in the original toy dataset. Dataset consists of 
 * Images
 * Metadata
-* Images as a numpy matrix
-* Image features as a numpy matrix
-    - Option to store and compare multiple the results of multiple feature extractors
+* Image features stored as a dictionary `doc id: feature vec`
+* Image index shards for storing the image feature vectors in KD trees
 * Doc shards for storing the document data
-* Index shards for storing the text indices
-* Trees for storing the image features
+* Text index shards for storing the text indices
 
 ## How to build the full dataset
 
@@ -249,4 +247,5 @@ The initial run from the root directory would take  a couple of minutes, because
 3. Text + image search in any combination works very well, and fast.
 4. UI looks nice and is user friendly.
 5. We were able to load from disk using simlinks very seamlessly.
-6. Fast . Images get fetched with a round trip query time of ~3seconds
+6. Fast . Images get fetched with a round trip query time of ~3 seconds
+7. Multiple ways to input an image; URL and file upload
