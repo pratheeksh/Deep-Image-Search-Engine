@@ -62,7 +62,8 @@ python -m code.webapp.start
 and navigate to the port that the frontend is listening on (this will be printed to standard out once everything has started up).
 
 Note
-The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to alocal directory. Subsequent startups would load the pickled model file.
+
+The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to a local directory. Subsequent startups would load the pickled model file.
 
 ## Getting flickr data
 
@@ -162,12 +163,14 @@ The root directory of the data is assumed to have the following structure
    - docs/ (Empty fodler which will later be populated with doc shards)
 
 Step 1:
+
 Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
 ```shell
 python -m util.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 Step 2:
+
 Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
 ```shell
 python -m code.feature-extractor.cnn_feature_extractor --npy_path NPY_PATH --feat_path FEAT_PATH
@@ -215,7 +218,7 @@ Create doc shards which map a document id to its metadata like (filename, title,
 python -m code.create_doc_shards --data_path METADATA_PATH --doc_path DOC_PATH
 ```
 
-6. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
+Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
 ```shell
 python -m code.indexer_text --data_path METADATA_PATH --idx_path IDX_PATH
 ```
@@ -223,20 +226,20 @@ python -m code.indexer_text --data_path METADATA_PATH --idx_path IDX_PATH
 To run the search engine,from the root directory, run
 ```shell
 python -m code.webapp.start
-```shell
+```
 
 Note
+
 The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to alocal directory. Subsequent startups would load the pickled model file.
 
 ## Issues we ran into
 1. https://github.com/tornadoweb/tornado/issues/1753
-2. Pytorch set up on linserv - core dumped due to gcc version. Problem caused by AMD instead of Intel CPUs which stuggle to work with pytorch. Have to install pytorch from source. 
-4. Tree recursion depth pickle error due to the size of kd tree
-5. Edge case normalization is a bit buggy
-6. Mercer works fine with pytorch but can't run webapp.
-7. Problems with image upload feature - Tornado had issues with uploading bigger images. So resorted to using jquery to upload the image to the server and then query. There is a  roundtrip time of 2-3 seconds. 
-8. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
-9. Cannot handle 4 channel images . Need error handling for that
+2. Tree recursion depth pickle error due to the size of kd tree
+3. Edge case normalization is a bit buggy
+4. Mercer works fine with pytorch but can't run webapp.
+5. Problems with image upload feature - Tornado had issues with uploading bigger images. So resorted to using jquery to upload the image to the server and then query. There is a  roundtrip time of 2-3 seconds. 
+6. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
+7. Cannot handle 4 channel images . Need error handling for that
 
 
 ## Successes yay!
@@ -244,4 +247,5 @@ The initial run from the root directory would take  a couple of minutes, because
 2. KD trees give very good results, and qulity of results obtained in log n time are comparable to linear time search
 3. Text + image search in any combination works very well, and fast.
 4. UI looks nice and is user friendly.
-6. We were able to load from disk using simlinks very seamlessly.
+5. We were able to load from disk using simlinks very seamlessly.
+6. Fast . Images get fetched with a round trip query time of ~3seconds
