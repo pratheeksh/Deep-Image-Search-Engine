@@ -68,11 +68,8 @@
             }
         }
 
-        document.getElementById('file1').onchange = function(){   
-          readURL(this);   
-          }
-
-        function readURL(input) {
+        document.getElementById('file1').onclick = function() {
+            var input = this
             console.log(input)
             // var filesrc
             if (input.files && input.files[0]) {
