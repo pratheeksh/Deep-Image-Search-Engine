@@ -98,6 +98,7 @@ $(function() {
                 filename = "Empty"
                 console.log("Image url given precendence to Uploaded image")
             }
+            $("#displayimage").show();
             console.log("Uploaded file was saved here ", filename)
         }
 
