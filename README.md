@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 This assumes that all of the data has been prepared. See the section **How to build the full dataset** to prepare the data.
 
-Make sure that `NUM_DOC_SERVERS`, `NUM_INDEX_SERVERS`, and `NUM_TXT_INDEX_SERVERS` match the number of shards stored in the corresponding folders above
+Make sure that `NUM_DOC_SERVERS`, `NUM_INDEX_SERVERS`, and `NUM_TXT_INDEX_SERVERS` match the number of shards stored in the relevant data folders.
 
 Set up your static/images to point to the location of the images on the disk. If there already exists an images directory, clear it.
 ```shell
