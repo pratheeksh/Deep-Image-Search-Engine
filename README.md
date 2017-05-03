@@ -14,7 +14,7 @@
 
 This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Images can be uploaded either by copying an image url into the Image URL field, or by uploading an image.
 
-![ImageSearch](data/ImageSearch.png)
+![ImageSearch](data/samplesearch.png)
 
 ## Dependencies
 - Python 3
