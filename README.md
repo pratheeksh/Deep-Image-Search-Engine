@@ -12,7 +12,7 @@
   * [Successes yay!](#successes-yay)
 # An Image Search Engine
 
-This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Currently this only supports loading an image into the search engine via an image url.
+This is a reverse image and text search engine. User can search a repository of images and their metadata using an image, text queries, or a combination of both. Images can be uploaded either by copying an image url into the Image URL field, or by uploading an image.
 
 ![ImageSearch](data/ImageSearch.png)
 
@@ -39,9 +39,10 @@ This assumes that all of the data has been prepared. See the section **How to bu
 
 Point the search engine to the images, doc shards and index shards with the following variables in `inventory.py`
 
-- `DOCS_STORE`: this folder should hold all the doc shards in the format `dochard_0.p`
+- `DOCS_STORE`: this folder should hold all the doc shards in the format `docshard_0.p`
 - `TREE_STORE` : this folder should hold all the kd tree indices of feature vectors in the format `0.out`
 - `TEXT_STORE` : this folder should hold all the text indices and tf-df index in the format `index_txt_0.p` and `tf_idf_index.p`
+- `IMAGES_STORE`: this folder should hold all the images
 
 Make sure that `NUM_DOC_SERVERS`, `NUM_INDEX_SERVERS`, and `NUM_TXT_INDEX_SERVERS` match the number of shards stored in the corresponding folders above
 
@@ -61,9 +62,13 @@ python -m code.webapp.start
 ```
 and navigate to the port that the frontend is listening on (this will be printed to standard out once everything has started up).
 
+Note
+
+The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to a local directory. Subsequent startups would load the pickled model file.
+
 ## Getting flickr data
 
-flickr_scaper.py parses the XML files available a part of the MVSO dataset, checks if an image exists for a datapoint, and if it does, downloads the images and saves the metadat
+flickr_scaper.py parses the XML files available a part of the MVSO dataset, checks if an image exists for a datapoint, and if it does, downloads the images and saves the metadata.
 
 Each example is assigned a unique integer key. This key is the name of the image file and the key to index into the metadata
 Metadata is stored as a pickled python dict, images are saved as jpgs. Below is an example of the metadata stored:
@@ -140,12 +145,10 @@ KD trees are used to store and efficiently search for similar feature vectors. W
 See data/test for a toy dataset of ~600 examples. See data/biggertest for a toy dataset of 2.5k examples. This larger dataset fixes the missing title in the metadata in the original toy dataset. Dataset consists of 
 * Images
 * Metadata
-* Images as a numpy matrix
-* Image features as a numpy matrix
-    - Option to store and compare multiple the results of multiple feature extractors
+* Image features stored as a dictionary `doc id: feature vec`
+* Image index shards for storing the image feature vectors in KD trees
 * Doc shards for storing the document data
-* Index shards for storing the text indices
-* Trees for storing the image features
+* Text index shards for storing the text indices
 
 ## How to build the full dataset
 
@@ -159,12 +162,14 @@ The root directory of the data is assumed to have the following structure
    - docs/ (Empty fodler which will later be populated with doc shards)
 
 Step 1:
+
 Create numpy arrays from the images and store in images_numpy. See converting images to numpy section above.
 ```shell
 python -m util.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 Step 2:
+
 Extract the image features. Assumes there are n numpy arrays containing the images in the images_numpy folder 
 ```shell
 python -m code.feature-extractor.cnn_feature_extractor --npy_path NPY_PATH --feat_path FEAT_PATH
@@ -174,10 +179,14 @@ To list the keys in each dict
 ```shell
 python -m code.feature-extractor.check_key_conversion
 ```
-To retrieve the image index from the 'K'th row of the M'th numpy array 
+
+To retrieve the image index from the 'K'th row of the M'th numpy array.
+
 image index = M * MAX_IMS_PER_MATRIX + K + 1
 
-4. Build kd trees from features. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
+Step 3: 
+
+Build KD-trees from feature vectors stored in FEAT_PATH. Assumes there are n feat_vec_i.in files in the features folder. Stores the results as .out files in the features folder.
 Start workers to run the map reduce job.
 
 ```shell
@@ -201,23 +210,35 @@ This MapReduce framework has issues. There is a [nasty tornado timeout bug](http
  cd ../../.. 
  ```
 
-5. Create doc shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
+Step 4: 
+
+Create doc shards which map a document id to its metadata like (filename, title, text, tags, flickr_url, image_url) from the metadata folder. Assumes there are n data_i.p files in the metadata folder and that the number of doc shards is set in the code.inventory with variable `NUM_DOC_SERVERS`. Doc shards are sharded by `DOC ID`
 ```shell
-python -m code.create_doc_shards --data_path DATA_PATH --doc_path DOC_PATH
+python -m code.create_doc_shards --data_path METADATA_PATH --doc_path DOC_PATH
 ```
-6. Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
+
+Create text index shards from metadata. Assumes there are n data_i.p files in the metadata folder and that the number of text index shards is set in the code.inventory with variable `NUM_TXT_INDEX_SERVERS`. Text indices are sharded by `DOC ID`
 ```shell
-python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
+python -m code.indexer_text --data_path METADATA_PATH --idx_path IDX_PATH
 ```
+
+To run the search engine,from the root directory, run
+```shell
+python -m code.webapp.start
+```
+
+Note
+
+The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to alocal directory. Subsequent startups would load the pickled model file.
+
 ## Issues we ran into
 1. https://github.com/tornadoweb/tornado/issues/1753
-2. Pytorch set up on linserv - core dumped due to gcc version. Problem caused by AMD instead of Intel CPUs which stuggle to work with pytorch. Have to install pytorch from source. 
-4. Tree recursion depth pickle error due to the size of kd tree
-5. Edge case normalization is a bit buggy
-6. Mercer works fine with pytorch but can't run webapp.
-7. Problems with image upload feature - Tornado had issues with uploading bigger images. So resorted to using jquery to upload the image to the server and then query. There is a  roundtrip time of 2-3 seconds. 
-8. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
-9. Cannot handle 4 channel images . Need error handling for that
+2. Tree recursion depth pickle error due to the size of kd tree
+3. Edge case normalization is a bit buggy
+4. Mercer works fine with pytorch but can't run webapp.
+5. Problems with image upload feature - Tornado had issues with uploading bigger images. So resorted to using jquery to upload the image to the server and then query. There is a  roundtrip time of 2-3 seconds. 
+6. Querying images with a heavy black background pulled up predominantly black images. The hypothesis is that the Alexnet model learns colours better that shapes/objects. Have fixed this by removing almost-black images from query results
+7. Cannot handle 4 channel images . Need error handling for that
 
 
 ## Successes yay!
@@ -225,4 +246,6 @@ python -m code.indexer_text --data_path DATA_PATH --idx_path IDX_PATH
 2. KD trees give very good results, and qulity of results obtained in log n time are comparable to linear time search
 3. Text + image search in any combination works very well, and fast.
 4. UI looks nice and is user friendly.
-6. We were able to load from disk using simlinks very seamlessly.
+5. We were able to load from disk using simlinks very seamlessly.
+6. Fast . Images get fetched with a round trip query time of ~3 seconds
+7. Multiple ways to input an image; URL and file upload

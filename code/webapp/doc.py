@@ -1,7 +1,8 @@
 import json
 
 from tornado import web
-
+import logging
+log = logging.getLogger(__name__)
 
 class Doc(web.RequestHandler):
     def initialize(self, data):
@@ -18,7 +19,7 @@ class Doc(web.RequestHandler):
         results = []
 
         for i, doc_id in enumerate(dids.split(',')):
-            print("Retrieving document for %d", int(doc_id), )
+            log.info("Retrieving document for {}".format(int(doc_id) ))
             doc = self._documents[int(doc_id)]
             doc['text'] = str(doc['text'])[:max(400, len(str(doc['text'])))]
             result = {'doc_id': doc_id,

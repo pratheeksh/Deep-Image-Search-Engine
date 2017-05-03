@@ -118,8 +118,8 @@ def save_indices(indices, idf_index, idx_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/metadata', type=str)
-    parser.add_argument('--idx_path', default='/Users/lauragraesser/Google Drive/NYU_Courses/SEA-Project/data/biggertest/indices', type=str)
+    parser.add_argument('--data_path', default='data/biggertest/metadata', type=str)
+    parser.add_argument('--idx_path', default='data/biggertest/indices', type=str)
     opt = parser.parse_args()
     print("-------------------Settings-----------------------")
     pprint.pprint(opt)

@@ -6,14 +6,15 @@ import socket
 import pickle
 import random
 import json
-import pprint
+import pprint, logging
 
+log = logging.getLogger(__name__)
 class IndexHolder:
     def __init__(self, index_id):
         self.index_id = index_id
         self.index = self.load_index(index_id)
         self.idf_idx = self.load_idf_idx()
-        print("Finished loading index for server {}".format(self.index_id))
+        log.info("Finished loading index for server {}".format(self.index_id))
  
     def load_index(self, index_id):
         name = inventory.TEXT_STORE + "/index_txt_" + str(index_id) + ".p"
@@ -31,7 +32,7 @@ class IndexServer(tornado.web.RequestHandler):
  
     def get(self):
         query = self.get_arguments('q', True)
-        print("Query is: {}".format(query))
+        log.info("Query is: {}".format(query))
         results = self.get_results(query)
         self.write(results)
 
