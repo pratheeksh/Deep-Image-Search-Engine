@@ -37,13 +37,6 @@ pip install -r requirements.txt
 
 This assumes that all of the data has been prepared. See the section **How to build the full dataset** to prepare the data.
 
-Point the search engine to the images, doc shards and index shards with the following variables in `inventory.py`
-
-- `DOCS_STORE`: this folder should hold all the doc shards in the format `docshard_0.p`
-- `TREE_STORE` : this folder should hold all the kd tree indices of feature vectors in the format `0.out`
-- `TEXT_STORE` : this folder should hold all the text indices and tf-df index in the format `index_txt_0.p` and `tf_idf_index.p`
-- `IMAGES_STORE`: this folder should hold all the images
-
 Make sure that `NUM_DOC_SERVERS`, `NUM_INDEX_SERVERS`, and `NUM_TXT_INDEX_SERVERS` match the number of shards stored in the corresponding folders above
 
 Set up your static/images to point to the location of the images on the disk. If there already exists an images directory, clear it.
@@ -58,13 +51,15 @@ ln -s ../../../data/biggertest/images/ images
 
 Then from the root directory, run
 ```shell
-python -m code.webapp.start
+python -m code.webapp.start --data_path PATH_TO_DATA_ROOT
 ```
 and navigate to the port that the frontend is listening on (this will be printed to standard out once everything has started up).
 
 Note
 
 The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to a local directory. Subsequent startups would load the pickled model file.
+
+To run the search engine on the `biggertest` dataset which is completely provided in the repo set `PATH_TO_DATA_ROOT` to `data/biggertest`
 
 ## Getting flickr data
 
@@ -119,14 +114,14 @@ Converts folder of images to numpy arrays of a fixed size. Each image is resized
 Use the following command from the root folder to convert_ims_to_numpy
 
 - MAX_IMS_PER_ARRAY = 100
-- IM_PATH = 'sea-project/data/test/images/'
-- NUMPY_PATH = 'sea-project/data/test/images_numpy/'
-- IM_RESIZE_DIMS = 224
+- IM_PATH = '/data/test/images/'
+- NUMPY_PATH = '/data/test/images_numpy/'
+- IM_RESIZE_DIMS = 227
 - START_IM_NUM = 1 # corresponds to test data
 - END_IM_NUM = 570 # corresponds to test data
 
 ```shell
-python -m utils.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
+python -m util.convert_ims_to_numpy --im_per_array MAX_IMS_PER_ARRAY --im_path  IM_PATH --npy_path NUMPY_PATH  
 --start_im START_IM_NUM --end_im  END_IM_NUM --im_resize IM_RESIZE_DIMS
 ```
 
