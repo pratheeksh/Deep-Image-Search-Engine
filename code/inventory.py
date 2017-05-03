@@ -1,15 +1,14 @@
 import getpass
 import hashlib
+
 MAX_PORT = 49123
 MIN_PORT = 10000
 
-# HOSTNAME = "http://localhost"
+HOSTNAME = "http://localhost"
 
-HOSTNAME =  "http://ec2-54-200-53-153.us-west-2.compute.amazonaws.com"
+# HOSTNAME = "http://ec2-54-200-53-153.us-west-2.compute.amazonaws.com"
 BASE_PORT = int(hashlib.md5(getpass.getuser().encode()).hexdigest()[:8], 16) % \
             (MAX_PORT - MIN_PORT) + MIN_PORT
-
-
 NUM_INDEX_SERVERS = 25
 NUM_TXT_INDEX_SERVERS = 10
 NUM_DOC_SERVERS = 10
@@ -22,12 +21,13 @@ TO_DISPLAY = 10
 TITLE_BONUS = 10.0
 WORKER_THREAD_COUNT = 8
 WORKER_PORTS = []
-DOCS_STORE = "data/FlickrData2/docs/docshard_%d.p"
-TREE_STORE = "data/FlickrData2/features"
-TEXT_STORE = "data/FlickrData2/indices"
-IMAGES_STORE = "data/FlickrData2/images"
 IM_RESIZE_DIMS = (227, 227)
 WEBAPP_PATH = "static/"
+DOCS_STORE = ""
+TREE_STORE = ""
+TEXT_STORE = ""
+IMAGES_STORE = ""
+
 
 def init_ports():
     for i in range(NUM_INDEX_SERVERS):
@@ -47,6 +47,3 @@ def init_ports():
     print("Doc server ports: {}".format(DOC_SERVER_PORTS))
     print("Worker ports: {}".format(WORKER_PORTS))
     print("Index txt server ports: {}".format(TXT_INDEX_SERVER_PORTS))
-
-if __name__ == "__main__":
-    init_ports()

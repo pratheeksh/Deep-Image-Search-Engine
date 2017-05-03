@@ -1,4 +1,4 @@
-from code.inventory import *
+from code import inventory
 import tornado.ioloop
 import tornado.web
 from tornado.httpclient import AsyncHTTPClient
@@ -17,11 +17,11 @@ class IndexHolder:
         log.info("Finished loading index for server {}".format(self.index_id))
  
     def load_index(self, index_id):
-        name = TEXT_STORE + "/index_txt_" + str(index_id) + ".p"
+        name = inventory.TEXT_STORE + "/index_txt_" + str(index_id) + ".p"
         return pickle.load(open(name, 'rb'))
 
     def load_idf_idx(self):
-        name = TEXT_STORE + "/txt_idf_index.p"
+        name = inventory.TEXT_STORE + "/txt_idf_index.p"
         return pickle.load(open(name, 'rb'))
 
 class IndexServer(tornado.web.RequestHandler):
@@ -112,7 +112,7 @@ class IndexServer(tornado.web.RequestHandler):
 
 def load_indices():
     indices = []
-    for i in range(NUM_TXT_INDEX_SERVERS):
+    for i in range(inventory.NUM_TXT_INDEX_SERVERS):
         index = IndexHolder(i)
         indices.append(index)
     return indices
@@ -120,15 +120,15 @@ def load_indices():
 def init_servers():
     index_servers = []
     indices = load_indices()
-    for i in range(NUM_TXT_INDEX_SERVERS):
+    for i in range(inventory.NUM_TXT_INDEX_SERVERS):
         idx_s = tornado.web.Application([
             (r"/index", IndexServer, dict(index_holder=indices[i], 
-                                          port=TXT_INDEX_SERVER_PORTS[i],
-                                          max_results=MAX_NUM_RESULTS)),
+                                          port=inventory.TXT_INDEX_SERVER_PORTS[i],
+                                          max_results=inventory.MAX_NUM_RESULTS)),
              ])
-        idx_s.listen(TXT_INDEX_SERVER_PORTS[i])
+        idx_s.listen(inventory.TXT_INDEX_SERVER_PORTS[i])
         name = "http://" + socket.gethostname() + ":"
-        print("Index server {} listing on {}".format(i, name + str(TXT_INDEX_SERVER_PORTS[i])))
+        print("Index server {} listing on {}".format(i, name + str(inventory.TXT_INDEX_SERVER_PORTS[i])))
         index_servers.append(idx_s)
     return index_servers
     
@@ -139,5 +139,4 @@ def main():
 
 
 if __name__=="__main__":
-    init_ports()
     main()

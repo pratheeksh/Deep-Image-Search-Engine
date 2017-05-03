@@ -6,8 +6,6 @@ import time
 import urllib.request
 from multiprocessing.pool import ThreadPool
 
-# sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
 from code import inventory
 
 inventory.init_ports()
@@ -55,8 +53,9 @@ def read_input_files():
 
 def reduce_helper():
     urls = []
-    for i, r in enumerate(worker_servers):
-        urls.append(get_reducer_url(r, i % args.num_reducers))
+
+    for i in range(args.num_reducers):
+        urls.append(get_reducer_url(worker_servers[i % inventory.WORKER_THREAD_COUNT], i))
     thread_helper(False, urls)
 
 
