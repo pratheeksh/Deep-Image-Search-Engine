@@ -59,7 +59,7 @@ Note
 
 The initial run from the root directory would take  a couple of minutes, because the pretrained Alexnet model has to get downloaded from the pytorch website and get pickled to a local directory. Subsequent startups would load the pickled model file.
 
-To run the search engine on the `biggertest` dataset which is completely provided in the repo set `PATH_TO_DATA_ROOT` to `data/biggertest`
+To run the search engine on the `test` or `biggertest` dataset which is completely provided in the repo set `PATH_TO_DATA_ROOT` to `data/test` or `data/biggertest`. Note please make sure that `static/images` points to the right location of images, as per the above instructions.
 
 ## Getting flickr data
 
