@@ -12,6 +12,9 @@ import pprint, logging
 from util.image_processing_fns import getImage, convertImageToArray, showImage
 
 log = logging.getLogger(__name__)
+
+# Idea for function came from
+# http://stackoverflow.com/questions/27868250/python-find-out-how-much-of-an-image-is-black
 def is_black(image, threshold=0.9):
     image = convertImageToArray(image)
     try:
