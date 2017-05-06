@@ -131,7 +131,7 @@ $(function() {
 		    var trimmedText = text.substring(0, Math.min(300,text.length));
 
 		    var tags = data[i]['tags']
-		    var trimmedTags = text.substring(0, Math.min(150,tags.length));
+		    var trimmedTags = tags.substring(0, Math.min(150,tags.length));
                     $("#results").append('<tr><td class="col-md-3"><a href="' + data[i]["flickr"] + '"><img src="/static/images/' + data[i]["doc_id"] + ".jpg" +
                         '" width=200 height=200></a></td><td class="col-md-2">' + data[i]['title'] + '</td><td class="col-md-4">' + trimmedText + '</td><td class="col-md-2">' + trimmedTags + '</td><td class="col-md-1">' + data[i]['source'] + '</td></tr>')
                 };
