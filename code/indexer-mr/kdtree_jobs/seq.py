@@ -26,17 +26,13 @@ for i in range(25):
             except:
                 continue
     feats = np.array(feats)
-    print(feats.shape)
 
     pca = decomposition.PCA(n_components=300)
     feats = pca.fit_transform(feats)
-    print(feats.shape)
     T = KDTree(np.array(feats), leafsize=20)
     a = np.random.rand(300)
     a = a.reshape(1,300)
     v, k = T.query(a, k=10)
-    print(v.flatten(), k.flatten())
-    break
     pickle.dump({" ".join(keys): T}, open(input_dir + "/pca_" + str(i) + ".out", "wb"))
     pickle.dump(pca, open(input_dir + "/pca_model_" + str(i) + ".out", "wb"))
 
