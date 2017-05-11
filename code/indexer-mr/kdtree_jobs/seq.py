@@ -4,6 +4,7 @@ import sys
 
 import numpy as np
 from scipy.spatial import KDTree
+from sklearn import decomposition
 
 sys.setrecursionlimit(10000)
 
@@ -15,7 +16,7 @@ for i in range(25):
     files_of_interest = files[start: start + 20]
     feats = []
     keys = []
-    print("files processed ",len(files_of_interest), start, start+20)
+    print("files processed ", len(files_of_interest), start, start + 20)
     for input_file in files_of_interest:
         data = pickle.load(open(input_dir + "/" + input_file, "rb"))
         for k in data:
@@ -25,7 +26,19 @@ for i in range(25):
             except:
                 continue
     feats = np.array(feats)
+    print(feats.shape)
+
+    pca = decomposition.PCA(n_components=300)
+    feats = pca.fit_transform(feats)
+    print(feats.shape)
     T = KDTree(np.array(feats), leafsize=20)
-    pickle.dump({" ".join(keys): T}, open( str(i) + ".out", "wb"))
+    a = np.random.rand(300)
+    a = a.reshape(1,300)
+    v, k = T.query(a, k=10)
+    print(v.flatten(), k.flatten())
+    break
+    pickle.dump({" ".join(keys): T}, open(input_dir + "/pca_" + str(i) + ".out", "wb"))
+    pickle.dump(pca, open(input_dir + "/pca_model_" + str(i) + ".out", "wb"))
+
     start += 20
     print(start)

@@ -8,13 +8,14 @@ from code import inventory
 
 class Index(web.RequestHandler):
     def initialize(self, shard_id):
-        self.kd_tree_dict = pickle.load(open(inventory.TREE_STORE + "/" + str(shard_id) + ".out", "rb"))
+        self.kd_tree_dict = pickle.load(open(inventory.TREE_STORE + "/pca_" + str(shard_id) + ".out", "rb"))
         self.file_names = list(self.kd_tree_dict.keys())[0].split()
         self.kd_tree = self.kd_tree_dict[list(self.kd_tree_dict.keys())[0]]
+        self.pca = pickle.load(open(inventory.TREE_STORE + "/pca_model_" + str(shard_id) + ".out", "rb"))
 
     def get_knn_image_feats(self, feature_vector):
-        scores, keys = self.kd_tree.query(feature_vector, k=10)
-        return scores, keys
+        scores, keys = self.kd_tree.query(self.pca.transform(feature_vector), k=10)
+        return scores.flatten(), keys.flatten()
 
     def head(self):
         self.finish()
